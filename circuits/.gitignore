@@ -1,0 +1,9 @@
+**.r1cs
+**.sym
+**_js/**
+**.ptau
+**.zkey
+**_verifier.json
+circomlib/**
+circomlib
+.nix-bin/**
