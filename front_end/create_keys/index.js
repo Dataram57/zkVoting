@@ -1,4 +1,11 @@
-console.log("load");
+//================================================================
+//#region Requirements
+
+
+//#endregion
+
+//================================================================
+//#region IO-Interface
 
 export function init(container) {
     console.log("init");
@@ -7,3 +14,7 @@ export function init(container) {
 export function destroy() {
     console.log("destroy");
 }
+
+//#endregion
+
+

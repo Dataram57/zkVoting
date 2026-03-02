@@ -8,9 +8,13 @@ window.onload = async () => {
     tagPageContent = document.getElementsByTagName('main')[0];
 
     //Update page
-    await UpdatePage();
+    await LoadPage(null, {skipHistory: true});
 };
 
+window.onpopstate = () => {
+    //Load previous (current cause the window changes the URL automatically) page
+    LoadPage(null, {skipHistory: true});
+};
 
 //#endregion
 
@@ -72,26 +76,34 @@ const FetchContent = (url) => {
 //================================================================
 //#region Page Managment
 
-const UpdatePage = async (pageName) => {
+const LoadPage = async (pageName, options) => {
     //skip if window hasn't loaded
     if(!tagPageContent)
         return;
 
-    //get pageName
+    //history
+    if(!options || !options.skipHistory)
+        window.history.pushState(Math.random(), '', "#" + pageName);
+
+    //skip empty pages
     if(!pageName)
-        pageName = "./" + GetNextURLPrivateParameter().parameter;
-    //make it all local
-    pageName = "./" + pageName;
-    
+        pageName = GetNextURLPrivateParameter().parameter;
+
     //skip empty page
     if(pageName.length <= 0)
         return;
 
-    //fetch HTML, CSS, JS and apply
+    //get pageSource
+    const pageSource = "./" + pageName;
+
+    //update url
+    window.location.hash = pageName;
+
+    //fetch HTML, CSS, JS-ESM module and apply
     const results = await Promise.all([
-        FetchContent(pageName + '/index.html')
-        ,FetchContent(pageName + '/index.css')
-        ,FetchJSModule(pageName + '/index.js')
+        FetchContent(pageSource + '/index.html')
+        ,FetchContent(pageSource + '/index.css')
+        ,FetchJSModule(pageSource + '/index.js')
     ]);
     SetPageContent(results[0], results[1]);
 };
