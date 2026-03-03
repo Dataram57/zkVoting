@@ -1,5 +1,15 @@
 {
+  "name": "front_end",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "snarkjs": "^0.7.6"
+    "poseidon-lite": "^0.3.0"
   }
 }

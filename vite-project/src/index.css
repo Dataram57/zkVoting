@@ -1,0 +1,322 @@
+/*
+const screen_sizes = [0, 576, 768, 992, 1200];
+const screen_sizes_names = ['xs', 'sm', 'md', 'lg', 'xl'];
+*/
+/*################################################################
+Body
+*/
+
+html, body{
+    height: 100%;
+    margin: 0;
+    /*Visuals*/
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+body{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /*Visuals*/
+    background-color: white;
+    color: black;
+}
+
+.dark-mode
+body{
+    /*Visuals*/
+    background-color: black;
+    color: white;
+}
+
+/*================================
+Background
+*/
+
+body > #background{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: -1;
+    display: flex;
+    justify-content: center;
+    
+}
+
+body > #background  div{
+    position: relative;
+    display: inline-flex;
+}
+
+body > #background img{
+    margin: auto;
+    height: 100%;
+}
+
+body > #background  span{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to left, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 25%)
+    ,linear-gradient(to right, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 25%);
+}
+
+.dark-mode
+body > #background  span{
+    background: linear-gradient(to left, rgba(0,0,0,1) 0%,rgba(0,0,0,0) 25%)
+    ,linear-gradient(to right, rgba(0,0,0,1) 0%,rgba(0,0,0,0) 25%);
+}
+
+/*================================
+Background Window
+*/
+
+body > #background_window{
+    top: 50%;
+    left: 50%;
+    position: fixed;
+    inset: 0;
+    transform: none;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1024px;
+    width: 100%;
+    height: 100vh;
+    z-index: -1;
+    /*Visuals*/
+    background-color: rgba(255, 255, 255, 0.618);
+    border: 0.1rem solid black;
+    border-top: 0.1rem solid black;
+}
+
+.dark-mode
+#background_window{
+    /*Visuals*/
+    background-color: rgba(0, 0, 0, 0.618);
+    border: 0.1rem solid white;
+    border-top: 0.1rem solid white;
+}
+
+/*================================
+Header
+*/
+
+body > header{
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1024px;
+    width: 100%;
+    /*Visuals*/
+    background-color: white;
+    border-bottom: 0.1rem solid black;
+    text-align: center;
+
+}
+
+.dark-mode
+body > header{
+    /*Visuals*/
+    background-color: black;
+    border-bottom: 0.1rem solid white;
+    text-align: center;
+}
+
+/*================================
+Navbar
+*/
+
+body > nav{
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1024px;
+    width: 100%;
+    /*Visuals*/
+    background-color: rgba(255, 255, 255, 0.618);
+    border-bottom: 0.1rem solid black;
+    /*Elements*/
+    display: flex;
+    align-items: stretch;
+    position: relative;
+}
+
+.dark-mode
+nav{
+    /*Visuals*/
+    background-color: rgba(0, 0, 0, 0.618);
+    border-bottom: 0.1rem solid white;
+}
+
+
+/*================================
+Footer
+*/
+
+body > footer{
+    margin-top: auto;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1024px;
+    width: 100%;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    /*Visuals*/
+    border-top: 0.1rem solid black;
+    background-color: rgba(255, 255, 255, 0.618);
+    text-align: center;
+}
+
+.dark-mode
+footer{
+    /*Visuals*/
+    border-top: 0.1rem solid white;
+    background-color: rgba(0, 0, 0, 0.618);
+}
+
+/*################################################################
+Navbar
+*/
+
+/*================================
+Side content
+*/
+
+body > nav header{
+    font-weight: bold;
+    font-size: xx-large;
+    text-align: center;
+}
+
+body > nav p{
+    font-style: italic;
+    font-size: medium;
+    text-align: center;
+}
+
+body > nav a{
+    display: inline-block;
+    padding: 0.2rem;
+    margin: 0.2rem;
+    /*Visuals*/
+    font-weight: bold;
+    font-size: larger;
+    color: white;
+    background-color: black;
+}
+
+.dark-mode
+nav a{
+    /*Visuals*/
+    color: black;
+    background-color: white;
+}
+
+/*================================
+Division
+*/
+
+body > nav > div{
+    margin-top: auto;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    width: 100%;
+}
+
+/*================================
+Centering divs
+*/
+
+body > nav > div > div{
+    text-align: center;
+}
+
+/*################################################################
+Main
+*/
+
+main{
+    max-width: 1024px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    flex: 1;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0.5rem;
+    display: flex;
+    
+
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex: none;
+}
+
+@media (max-width: 576px) {
+main{
+    padding: 0.5rem 0;
+}}
+
+/*================================
+Article
+-horizontal margin will reach beyound the content
+*/
+
+main > article{
+    margin: 0.5rem 1rem;
+    max-width: calc(100% - 2 * 1rem - 2 * 1rem);
+    width: 100%;
+    padding: 1rem;
+    /*Visuals*/
+    outline: 0.1rem solid black;
+    background-color: rgba(255, 255, 255, 0.618);
+}
+
+@media (max-width: 576px) {
+main > article {
+    margin: 0.5rem 0rem;
+    max-width: 100%;
+}}
+
+.dark-mode
+main > article{
+    /*Visuals*/
+    outline: 0.1rem solid white;
+    background-color: rgba(0, 0, 0, 0.618);
+}
+
+main > article a{
+    color: cornflowerblue;
+    text-decoration: none;
+}
+
+main > article img{
+    max-height: 512px;
+    width: auto;
+}
+
+/*################################################################
+Dark mode button
+*/
+
+#dark_mode_button{
+    color: black;
+    font-family: 'Courier New', Courier, monospace;
+    text-decoration: none;
+}#dark_mode_button::after{
+    content: "☀️";
+}
+.dark-mode
+#dark_mode_button{
+    
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+}
+.dark-mode
+#dark_mode_button::after{
+    content: "🌙";
+}

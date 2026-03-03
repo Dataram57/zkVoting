@@ -110,6 +110,7 @@ const LoadPage = async (pageName, options) => {
 
 let pageJSModule = null;
 const FetchJSModule = async (url) => {
+    console.log("call");
     //"destroy" current
     if(pageJSModule)
         pageJSModule.destroy?.();
@@ -118,6 +119,7 @@ const FetchJSModule = async (url) => {
         pageJSModule = await import(url);
     }
     catch(e){
+        console.error(e);
         pageJSModule = null;
     }
 };
