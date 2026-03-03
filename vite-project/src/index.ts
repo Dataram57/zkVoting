@@ -143,7 +143,6 @@ const SetPageContent = (
     html: string | null,
     css: string | null
 ): void => {
-    console.log(css);
     if (!tagPageContent || !html) return;
 
     tagPageContent.innerHTML = html;
