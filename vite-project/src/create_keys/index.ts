@@ -42,13 +42,13 @@ function randomBigInt(bits: number): bigint {
 }
 
 
-function ButtonRandomPrivateKey_click(event: PointerEvent) {
+function ButtonRandomPrivateKey_click() {
     const input = document.getElementById("private_key") as HTMLInputElement;
     input.value = randomBigInt(254).toString();
     InputPrivateKey_input();
 };
 
-function InputPrivateKey_input(event?: Event){
+function InputPrivateKey_input(){
     const input = document.getElementById("private_key") as HTMLInputElement;
     const output = document.getElementById("public_key") as HTMLInputElement;
 
@@ -62,8 +62,7 @@ function InputPrivateKey_input(event?: Event){
 };
 
 
-export function init(container : HTMLElement) {
-    console.log(666);
+export function init() {
     //console.log(poseidon1([3n]));
 
     //on change event
