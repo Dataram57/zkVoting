@@ -1,1 +1,33 @@
-create poll
+
+<article>
+    <h2><i>Note on trust</i></h2>
+    Ideal anonymous poll would be performed on a trustless distributed systems such as Ethereum blockchain or on system provided by the most interested parties. Due to simplicity and cheapness of this tool the poll and its votes will be stored on a centralised servers.
+</article>
+
+<article>
+    <h1>Create new Poll</h1>
+
+    <h3>Description</h3>
+    <p>Describe your poll in markdown format.</p>
+    <textarea id="Description" placeholder="# My first poll&NewLine;&NewLine;What's your lucky number?&NewLine;- 57&NewLine;- 13&NewLine;- Other?"></textarea>
+
+    <h3>Members</h3>
+    <p>Paste public keys of poll's participants and hide them via masking codes.</p>
+    <table>
+        <tr>
+            <th>Public Key</th>
+            <th>Use masking code</th>
+            <th>Options</th>
+        </tr>
+        <tr>
+            <td><input type="text" placeholder="Participant's public key"/></td>
+            <td><input type="checkbox"/></td>
+            <td>
+                <a href="javascript:void(0)">❌</a>
+            </td>
+        </tr>
+    <table>
+    <button>Add Participant</button>
+    <input type="number" value='1' min="1">
+    <button>Add N-Participant</button>
+</article>

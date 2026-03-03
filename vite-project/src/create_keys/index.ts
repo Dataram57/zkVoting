@@ -3,6 +3,7 @@
 
 import {poseidon1 } from "poseidon-lite";
 const GeneratePublicKey = (secret: bigint): bigint => poseidon1([secret]);
+const p : bigint = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
 //#endregion
 
@@ -38,7 +39,7 @@ function randomBigInt(bits: number): bigint {
         result = (result << 8n) | BigInt(byte);
     }
 
-    return result;
+    return result % p;
 }
 
 
@@ -53,11 +54,20 @@ function InputPrivateKey_input(){
     const output = document.getElementById("public_key") as HTMLInputElement;
 
     try{
+        if(input.value.length == 0){
+            output.value = "";
+            return;
+        }
         const secret : bigint= BigInt(input.value);
-        output.value = GeneratePublicKey(secret).toString();
+        if(secret >= p)
+            output.value = "Private Key must be lower than " + p.toString() + "!!!";
+        else if(secret <= 0)
+            output.value = "Private Key must be a positive integer number!!!";
+        else
+            output.value = GeneratePublicKey(secret).toString();
     }
     catch(error : any){
-        output.value = "Private Key is in wrong format!!!";
+        output.value = "Private Key must be a number!!!";
     }
 };
 
@@ -81,9 +91,7 @@ export function init() {
     //button-random-value
 }
 
-export function destroy() {
-    console.log("destroy");
-}
+export function destroy() {}
 
 //#endregion
 
