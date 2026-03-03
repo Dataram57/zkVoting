@@ -114,7 +114,7 @@ interface PageModule {
     destroy?: () => void;
 }
 
-const pageModules = import.meta.glob("../*/index.ts");
+const pageModules = import.meta.glob("../src/*/index.ts");
 
 let pageJSModule: PageModule | null = null;
 
@@ -123,7 +123,7 @@ const FetchJSModule = async (pageName: string): Promise<void> => {
         pageJSModule.destroy();
     }
 
-    const modulePath = `../${pageName}/index.ts`;
+    const modulePath = `./${pageName}/index.ts`;
     const loader = pageModules[modulePath];
 
     if (!loader) {
@@ -143,6 +143,7 @@ const SetPageContent = (
     html: string | null,
     css: string | null
 ): void => {
+    console.log(css);
     if (!tagPageContent || !html) return;
 
     tagPageContent.innerHTML = html;
@@ -162,7 +163,7 @@ const SetPageCSS = (code: string): void => {
 
     tag = document.createElement('style');
     tag.id = 'tagPageCSS';
-    tag.innerHTML = code;
+    tag.textContent = code;
 
     tagPageContent?.appendChild(tag);
 };
