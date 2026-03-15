@@ -23,17 +23,40 @@ main table td{
 }
 
 
-main table td:first-child{
+main #participants td:first-child{
     width: 100%;
     max-width: 100%;
 }
 
-main table td:first-child > input{
+main #participants td:first-child > input{
     width: 100%;
-}main table td:first-child > input.error{
+}main #participants td:first-child > input.error{
     background-color:crimson;
 }
 
 main table th:nth-child(2){
   
+}
+
+
+main article div{
+    text-align: center;
+    align-items: center;
+}
+
+.hosting-result{
+    display: none;
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 0.1rem solid black;
+    text-align: center;
+}
+
+.hosting-result > *{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hosting-result.show{
+    display: block;
 }

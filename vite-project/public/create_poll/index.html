@@ -9,7 +9,7 @@
 
     <h3>Description</h3>
     <p>Describe your poll in markdown format.</p>
-    <textarea id="Description" placeholder="# My first poll&NewLine;&NewLine;What's your lucky number?&NewLine;- 57&NewLine;- 13&NewLine;- Other?"></textarea>
+    <textarea id="poll-description" placeholder="# My first poll&NewLine;&NewLine;What's your lucky number?&NewLine;- 57&NewLine;- 13&NewLine;- Other?"></textarea>
 
     <h3>Members</h3>
     <p>Paste public keys of poll's participants and hide them via masking codes.</p>
@@ -28,8 +28,37 @@
                 </td>
             </tr>
         </script>
-    <table>
+    </table>
     <button id="button-add_paricipant">Add Participant</button>
-    <input id="n-participants" type="number" step="1" value='4' min="1">
+    <input id="n-participants" type="number" step="1" value='4' min="1" />
     <button id="button-add_n_pariticipants">Add N-Participant</button>
+</article>
+
+<article>
+    <h1>Host the poll</h1>
+    <div>
+        <button id="button-host_poll">Host Poll</button>
+    </div>
+    <div class="hosting-result" id="hosting-result-success">
+        <h3>Poll's address</h3>
+        <a href="#" target="_blank" id="poll-link">Link</a>
+
+        <h3>Special invitations</h3>
+        <table>
+            <tr>
+                <th>Member's public key</th>
+                <th>Member's invite link</th>
+            </tr>
+            <script type="text" id="pattern-invitation">
+                <tr>
+                    <td><input disabled type="text" id="pattern-invitation-public_key"/></td>
+                    <td><a href='#' target="_blank" id="pattern-invitation-link"></a></td>
+                </tr>
+            </script>
+        </table>
+    </div>
+    <div class="hosting-result" id="hosting-result-failure">
+        <h3>Couldn't host a poll</h3>
+        <p id="hosting-result-failure-reason">...</p>
+    </div>
 </article>
