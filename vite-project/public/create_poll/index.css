@@ -30,6 +30,8 @@ main table td:first-child{
 
 main table td:first-child > input{
     width: 100%;
+}main table td:first-child > input.error{
+    background-color:crimson;
 }
 
 main table th:nth-child(2){
