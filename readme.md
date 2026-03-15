@@ -1,24 +1,19 @@
+# zkVoting
 
 
+### Running server
 
-# ss
+```sh
+nix develop
+cd vite-project
+npm install
+npm run dev
+```
 
+### Database
 
+...
 
-Bucket Structures:
+### Compiling Circuits
 
-VOTING:
-- readme.md
-- attachment_*
-- vote_*
-
-To get the stuff we shall list the stuff with VOTING prefix
-
-Nevermind All is done in postgress
-
-Simple Selects
-Static Inserts
-Simple Deletes
-
-
-Polls and votes should be deleted once their lifetime ends
+...
