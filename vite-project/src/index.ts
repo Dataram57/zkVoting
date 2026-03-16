@@ -1,3 +1,9 @@
+const globalConfig = {
+    p: 21888242871839275222246405745257275088548364400416034343698204186575808495617n,
+    MerkleTreeHeight: 8n,
+    apiURL: "http://localhost:3000",
+};
+
 //================================================================
 //#region Window and page switching
 
@@ -90,15 +96,21 @@ const LoadPage = async (
     }
 
     // If empty, get from URL
+    let pageAddress : string | null = pageName;
     if (!pageName) {
         pageName = GetNextURLPrivateParameter().parameter;
+        pageAddress = GetNextURLPrivateParameter().remainder;
+        if(pageAddress.length)
+            pageAddress = pageName + "#" + pageAddress;
+        else
+            pageAddress = pageName;
     }
 
     if (!pageName || pageName.length <= 0) return;
 
     const pageSource = "./" + pageName;
 
-    window.location.hash = pageName;
+    window.location.hash = pageAddress as string;
 
     const results = await Promise.all([
         FetchContent(pageSource + '/index.html'),
@@ -110,7 +122,7 @@ const LoadPage = async (
 };
 
 interface PageModule {
-    init?: (container: HTMLElement) => void;
+    init?: (container: HTMLElement, config : any) => void;
     destroy?: () => void;
 }
 
@@ -152,7 +164,7 @@ const SetPageContent = (
     }
 
     if (pageJSModule?.init) {
-        pageJSModule.init(tagPageContent);
+        pageJSModule.init(tagPageContent, globalConfig);
     }
 };
 

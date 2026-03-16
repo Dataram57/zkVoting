@@ -77,14 +77,47 @@ app.post("/create_poll", async (req, res) => {
     }
 });
 
-//
-app.get("/poll", async (req, res) => {
-    res.json(await getData());
+app.get("/poll/:pollId", async (req, res) => {
+    try {
+
+        const pollId = req.params.pollId;
+
+        const result = await sql`
+            SELECT id, description, merkle_root, created_at
+            FROM polls
+            WHERE id = ${pollId}
+        `;
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Poll not found" });
+        }
+
+        res.json(result[0]);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
-//
-app.get("/poll", async (req, res) => {
-    res.json(await getData());
+app.get("/poll/:pollId/members", async (req, res) => {
+    try {
+
+        const pollId = req.params.pollId;
+
+        const members = await sql`
+            SELECT leaf, position
+            FROM poll_members
+            WHERE poll_id = ${pollId}
+            ORDER BY position
+        `;
+
+        res.json(members);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Database error" });
+    }
 });
 
 
