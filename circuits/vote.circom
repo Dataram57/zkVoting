@@ -4,18 +4,49 @@ include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/poseidon.circom";
 
 template Vote(merkle_levelCount) {
+    //member
     signal input privateKey;
-    signal input pollHash;
     signal input publicKey_index;
+    signal input invitation;
+    
+    //poll
+    signal input pollHash;
+    
+    //vote
     signal input vote;
+
+    //Merkle Proof
     signal input merkle_leafs[merkle_levelCount];
 
     //================================================================
-    //Merkle Proof
-    
+    //Nullifier
+
+    component nullifer = Poseidon(2);
+    nullifer.inputs[0] <== privateKey;
+    nullifer.inputs[1] <== pollHash;
+
+    //================================================================
+    //Public Key Generator
+
+    component publicKeyGenerator = Poseidon(1);
+    publicKeyGenerator.inputs[0] <== privateKey;
+
+    //================================================================
+    //Merkle Entry
+
+    component merkleEntry = Poseidon(2);
+    merkleEntry.inputs[0] <== publicKeyGenerator.out;
+    merkleEntry.inputs[1] <== invitation;
+
+    //================================================================
+    //Merkle Tree Path
+
     //get element (end leaf) path
     component bits = Num2Bits(merkle_levelCount);
     bits.in <== publicKey_index;
+
+    //================================================================
+    //Merkle Proof
 
     //computation parts
     component ph_left[merkle_levelCount];
@@ -25,9 +56,7 @@ template Vote(merkle_levelCount) {
     signal ph_next[merkle_levelCount + 1];
 
     //define first root:    
-    component entry = Poseidon(1);
-    entry.inputs[0] <== privateKey;
-    ph_next[0] <== entry.out;
+    ph_next[0] <== merkleEntry.out;
 
     //blind computation of the merkle tree root
     for (var i = 0; i < merkle_levelCount; i++){
@@ -48,21 +77,12 @@ template Vote(merkle_levelCount) {
     }
 
     //================================================================
-
-    //================================================================
-    //Nullifier
-
-    component nullifer = Poseidon(2);
-    nullifer.inputs[0] <== privateKey;
-    nullifer.inputs[1] <== pollHash;
-
-    //================================================================
-
     //Public signals
+
     signal output out_pollHash <== pollHash;
     signal output out_merkleRoot <== ph_next[merkle_levelCount];
     signal output out_nullifier <== nullifer.out;
     signal output out_vote <== vote;
 }
 
-component main = Vote(4);
+component main = Vote(8);
