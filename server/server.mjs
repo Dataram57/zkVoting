@@ -49,7 +49,10 @@ app.get("/", (req, res) => {
 app.post("/create_poll", async (req, res) => {
     try {
 
+        //get data
         const pollData = req.body;
+        
+        //calculate id
         const pollHash = Hash(JSON.stringify(pollData));
 
         const memberQueries = pollData.members.map((leaf, i) =>
@@ -70,7 +73,6 @@ app.post("/create_poll", async (req, res) => {
         res.json({ id: pollHash });
 
     } catch (err) {
-        console.error(err);
         res.status(500).json({ error: "Failed to create poll" });
     }
 });

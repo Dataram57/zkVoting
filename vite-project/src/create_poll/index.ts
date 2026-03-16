@@ -76,9 +76,9 @@ function Participant_input(e : Event){
 }
 
 
-function AddNewInvitation(pk: bigint, link: string){
+function AddNewInvitation(pk: bigint, link: string, linkText: string){
     let tag : HTMLElement;
-    tag = document.getElementById("participants") as HTMLElement;
+    tag = document.getElementById("invitations") as HTMLElement;
     tag.insertAdjacentHTML("beforeend", document.getElementById("pattern-invitation")?.innerText as string);
 
     //public key
@@ -90,6 +90,7 @@ function AddNewInvitation(pk: bigint, link: string){
     tag = document.getElementById("pattern-invitation-link") as HTMLElement;
     tag.id = "";
     (tag as HTMLLinkElement).href = link;
+    tag.innerText = linkText;
 }
 
 function AddNewParticipant(){
@@ -218,12 +219,27 @@ async function HostPoll(){
             })
         });
         const data = await response.json();
-        console.log(data);
+        if(!data.id)
+            throw 0;
 
-        //add content
-        codes.forEach(invite => {
-            AddNewInvitation(invite.pk, invite.code.toString());
-        });
+        //url for links
+        const pollLink = window.location.href.substring(0, window.location.href.length - window.location.hash.length) + "#poll#" + data.id;
+
+        //display special invites
+        if(codes.length)
+            codes.forEach(invite => {
+                AddNewInvitation(invite.pk, pollLink + "#" + invite.code.toString(), invite.code.toString());
+            });
+        else{
+            //hide if no invitations
+            (document.getElementById("invitations") as HTMLElement).hidden = true;
+            (document.getElementById("invitations-header") as HTMLElement).hidden = true;
+        }
+
+        //link
+        const tag = document.getElementById("poll-link") as HTMLLinkElement;
+        tag.href = pollLink;
+        tag.innerText = tag.href;
 
         //mark success
         DisplaySuccess();
