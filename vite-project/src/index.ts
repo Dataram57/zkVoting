@@ -1,3 +1,5 @@
+import { GetNextURLPrivateParameter } from "./lib";
+
 //================================================================
 //#region Window and page switching
 
@@ -24,33 +26,6 @@ interface URLParameterResult {
     parameter: string;
     remainder: string;
 }
-
-const GetNextURLPrivateParameter = (url?: string): URLParameterResult => {
-    if (!url) url = window.location.href;
-
-    let i = url.indexOf('#');
-    if (i > -1) {
-        url = url.substring(i + 1);
-        i = url.indexOf('#');
-
-        if (i > -1) {
-            return {
-                parameter: url.substring(0, i),
-                remainder: url.substring(i + 1)
-            };
-        }
-
-        return {
-            parameter: url,
-            remainder: ''
-        };
-    }
-
-    return {
-        parameter: '',
-        remainder: ''
-    };
-};
 
 const FetchContent = async (url: string): Promise<string | null> => {
     const options: RequestInit = {};
