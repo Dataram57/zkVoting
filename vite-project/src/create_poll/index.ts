@@ -230,6 +230,7 @@ async function HostPoll(){
         isPushing = false;
         DisplayError("Error: " + error.toString());
     }
+    console.log(isPushing);
 }
 
 
