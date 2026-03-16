@@ -1,9 +1,3 @@
-const globalConfig = {
-    p: 21888242871839275222246405745257275088548364400416034343698204186575808495617n,
-    MerkleTreeHeight: 8n,
-    apiURL: "http://localhost:3000",
-};
-
 //================================================================
 //#region Window and page switching
 
@@ -122,7 +116,7 @@ const LoadPage = async (
 };
 
 interface PageModule {
-    init?: (container: HTMLElement, config : any) => void;
+    init?: (container: HTMLElement) => void;
     destroy?: () => void;
 }
 
@@ -164,7 +158,7 @@ const SetPageContent = (
     }
 
     if (pageJSModule?.init) {
-        pageJSModule.init(tagPageContent, globalConfig);
+        pageJSModule.init(tagPageContent);
     }
 };
 

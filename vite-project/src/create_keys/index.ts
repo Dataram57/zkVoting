@@ -3,7 +3,7 @@
 
 import {poseidon1 } from "poseidon-lite";
 const GeneratePublicKey = (secret: bigint): bigint => poseidon1([secret]);
-let p : bigint;         //from globalConfig
+import { p } from "../config";
 
 //#endregion
 
@@ -71,9 +71,7 @@ function InputPrivateKey_input(){
     }
 };
 
-export function init(container : any, globalConfig : any) {
-    p = globalConfig.p as bigint;
-
+export function init() {
     //on change event
     (document.getElementById("private_key") as HTMLInputElement)
         .addEventListener("input", InputPrivateKey_input);

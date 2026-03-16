@@ -2,12 +2,11 @@
 import {poseidon2 } from "poseidon-lite";
 const GenerateMemeberLeaf = (public_key: bigint, mask: bigint = 0n): bigint => poseidon2([public_key, mask]);
 const PoseidonHash = (leaf_left : bigint = 0n, leaf_right : bigint = 0n) => poseidon2([leaf_left, leaf_right]);
-let MerkleTreeHeight : bigint; //from globalConfig
 
-let p : bigint;         //from globalConfig
-let maxParticipants : bigint;
+import { p, merkleTreeHeight, apiURL } from "../config";
 
-let apiURL : string;    //from globalConfig
+const maxParticipants : bigint = 1n << merkleTreeHeight;
+
 
 let isBlocked : boolean = false;
 let isPushing : boolean = false;
@@ -139,7 +138,7 @@ function DisplaySuccess(){
 
 function ComputeMerkleRoot(members: string[]): bigint {
 
-    const leafCount = 1 << Number(MerkleTreeHeight); // 256
+    const leafCount = maxParticipants
     const leaves: bigint[] = new Array(leafCount).fill(0n);
 
     for (let i = 0; i < members.length && i < leafCount; i++)
@@ -254,15 +253,7 @@ async function HostPoll(){
 
 
 
-export function init(container: HTMLElement, globalConfig: any) {
-    //config
-    p = globalConfig.p as bigint;
-    MerkleTreeHeight = globalConfig.MerkleTreeHeight as bigint;
-    apiURL = globalConfig.apiURL as string;
-
-    //calculate max number of participants
-    maxParticipants = 1n << MerkleTreeHeight;
-
+export function init() {
     //pariticipants - buttons
     document.getElementById("button-add_paricipant")?.addEventListener("click", AddNewParticipant);
     document.getElementById("button-add_n_pariticipants")?.addEventListener("click", AddN_NewPariticipants);
