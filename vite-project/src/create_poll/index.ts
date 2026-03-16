@@ -7,6 +7,8 @@ const MerkleTreeHeight : bigint = 8n;
 const p : bigint = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 const maxParticipants : bigint = 1n << MerkleTreeHeight;
 
+const apiURL = "http://localhost:3000"
+
 let isBlocked : boolean = false;
 let isPushing : boolean = false;
 let errorCount: number = 0;
@@ -204,7 +206,7 @@ async function HostPoll(){
 
     //form query
     try{
-        const response = await fetch("/api/endpoint", {
+        const response = await fetch(apiURL + "/create_poll", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
