@@ -1,12 +1,5 @@
 import { apiURL } from "../config"
-import { GetNextURLPrivateParameter, sha256json } from "../lib";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
-
-export function markdownToSafeHTML(markdown: string): string {
-    const rawHTML = marked.parse(markdown, { async: false }) as string;
-    return DOMPurify.sanitize(rawHTML);
-}
+import { getNextURLPrivateParameter, sha256json, markdownToSafeHTML } from "../lib";
 
 function ClearCheckLogs(){
     (document.getElementById("check_logs") as HTMLElement).innerText = "";
@@ -60,15 +53,14 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
             description: pollMeta.description
         };
         const pollHash = await sha256json(pollData);
-        if(pollHash != pollId){
+        if(pollHash != pollId)
             CheckFailure("Server has altered poll's data.");
-            return;
+        else{
+            CheckSuccess("Poll's data is legit.");
+            
+            //fetch and verify poll's votes
+            //..
         }
-        CheckSuccess("Poll's data is legit.");
-        
-
-
-        //fetch and verify poll's votes
     
     }
     catch(e : any){
@@ -88,7 +80,7 @@ export function init() {
     document.getElementById("button-verify")?.addEventListener("click", ButtonVerifyPoll_click);
 
     //autofill inputs
-    const pollId = GetNextURLPrivateParameter("#" + GetNextURLPrivateParameter().remainder).parameter;
+    const pollId = getNextURLPrivateParameter("#" + getNextURLPrivateParameter().remainder).parameter;
     if(pollId.length){
         (document.getElementById("input-poll-id") as HTMLInputElement).value = pollId;
         ButtonVerifyPoll_click();

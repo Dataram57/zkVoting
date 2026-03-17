@@ -1,4 +1,4 @@
-import { GetNextURLPrivateParameter } from "./lib";
+import { getNextURLPrivateParameter } from "./lib";
 
 //================================================================
 //#region Window and page switching
@@ -67,8 +67,8 @@ const LoadPage = async (
     // If empty, get from URL
     let pageAddress : string | null = pageName;
     if (!pageName) {
-        pageName = GetNextURLPrivateParameter().parameter;
-        pageAddress = GetNextURLPrivateParameter().remainder;
+        pageName = getNextURLPrivateParameter().parameter;
+        pageAddress = getNextURLPrivateParameter().remainder;
         if(pageAddress.length)
             pageAddress = pageName + "#" + pageAddress;
         else

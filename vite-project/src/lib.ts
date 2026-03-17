@@ -1,9 +1,13 @@
+
+import { marked } from "marked";
+import DOMPurify from "dompurify";
+
 interface URLParameterResult {
     parameter: string;
     remainder: string;
 }
 
-export function GetNextURLPrivateParameter(url?: string): URLParameterResult {
+export function getNextURLPrivateParameter(url?: string): URLParameterResult {
     if (!url) url = window.location.href;
 
     let i = url.indexOf('#');
@@ -39,4 +43,10 @@ export async function sha256json<T>(obj: T): Promise<string> {
     return Array.from(new Uint8Array(hashBuffer))
         .map(b => b.toString(16).padStart(2, "0"))
         .join("");
+}
+
+
+export function markdownToSafeHTML(markdown: string): string {
+    const rawHTML = marked.parse(markdown, { async: false }) as string;
+    return DOMPurify.sanitize(rawHTML);
 }
