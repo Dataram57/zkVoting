@@ -222,12 +222,14 @@ async function HostPoll(){
             throw 0;
 
         //url for links
-        const pollLink = window.location.href.substring(0, window.location.href.length - window.location.hash.length) + "#poll#" + data.id;
+        const appBaseUrl = window.location.href.substring(0, window.location.href.length - window.location.hash.length);
+        const pollLink = appBaseUrl + "#poll#" + data.id;
+        const voteLink = appBaseUrl + "#vote#" + data.id;
 
         //display special invites
         if(codes.length)
             codes.forEach(invite => {
-                AddNewInvitation(invite.pk, pollLink + "#" + invite.code.toString(), invite.code.toString());
+                AddNewInvitation(invite.pk, voteLink + "#" + invite.code.toString(), invite.code.toString());
             });
         else{
             //hide if no invitations
@@ -236,8 +238,12 @@ async function HostPoll(){
         }
 
         //link
-        const tag = document.getElementById("poll-link") as HTMLLinkElement;
+        let tag = document.getElementById("poll-link-results") as HTMLLinkElement;
         tag.href = pollLink;
+        tag.innerText = tag.href;
+
+        tag = document.getElementById("poll-link-voting") as HTMLLinkElement;
+        tag.href = voteLink;
         tag.innerText = tag.href;
 
         //mark success
