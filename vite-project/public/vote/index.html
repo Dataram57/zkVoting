@@ -1,1 +1,35 @@
-vote
+
+<article>
+    <h1>Poll's information</h1>
+    <h3>Poll's hash ID</h3>
+    <p>Enter poll's hash ID you claim to be a member of.</p>
+    <input id="input-poll-id" type="text" placeholder="Poll SHA256 id such as 51debf82..."/>
+    
+    
+    <button id="button-verify">Verify</button>
+    <p id="check_logs"></p>
+
+</article>
+
+<article id="poll-description" hidden>
+    ...
+</article>
+
+<article id="panel-vote" hidden>
+    <h1>Vote</h1>
+
+    <h3><i>Private Key</i></h3>
+    <p>Please</p>
+    <input id="input-invitation" type="text" placeholder="Poll SHA256 id such as 51debf82..."/>
+
+    <h3><i>Special invitation</i></h3>
+    <p><i>If you have received special invitation code, please put it here</i></p>
+    <input id="input-private_key" type="text" placeholder="Poll SHA256 id such as 51debf82..."/>
+
+    <h3>Option</h3>
+    <p>Put the option as a number you wish to vote for.</p>
+    <input id="input-vote" type="value" min="0" step="1"/>
+
+    <button id="button-vote">Vote</button>
+
+</article>

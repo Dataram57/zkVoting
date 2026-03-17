@@ -21,7 +21,9 @@ function CheckFailure(message : string){
 }
 
 async function ButtonVerifyPoll_click(e : Event | null = null){
-    //disable buttons and get id
+    //disable buttons and hide panels and get id
+    (document.getElementById("poll-description") as HTMLButtonElement).hidden = true;
+    (document.getElementById("panel-results") as HTMLButtonElement).hidden = true;
     (document.getElementById("button-verify") as HTMLButtonElement).disabled = true;
     const tag : HTMLInputElement = document.getElementById("input-poll-id") as HTMLInputElement;
     tag.disabled = true;
@@ -40,6 +42,7 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
         })).json();
         (document.getElementById("poll-description") as HTMLElement).innerHTML = markdownToSafeHTML(pollMeta.description);
         CheckSuccess("Poll's profile loaded.");
+        (document.getElementById("poll-description") as HTMLButtonElement).hidden = false;
 
         //fetch poll members
         const pollMembers = await (await fetch(apiURL + "/poll/" + pollId + "/members", {
