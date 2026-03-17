@@ -1,5 +1,5 @@
 import { apiURL } from "../config"
-import { GetNextURLPrivateParameter } from "../lib";
+import { GetNextURLPrivateParameter, sha256json } from "../lib";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 
@@ -8,26 +8,69 @@ export function markdownToSafeHTML(markdown: string): string {
     return DOMPurify.sanitize(rawHTML);
 }
 
+function ClearCheckLogs(){
+    (document.getElementById("check_logs") as HTMLElement).innerText = "";
+}
+
+function CheckSuccess(message : string){
+    (document.getElementById("check_logs") as HTMLElement).innerText += "\n✅ " + message;
+}
+
+function CheckFailure(message : string){
+    (document.getElementById("check_logs") as HTMLElement).innerText += "\n❌ " + message;
+}
+
 async function ButtonVerifyPoll_click(e : Event | null = null){
-    //disable buttons
+    //disable buttons and get id
     (document.getElementById("button-verify") as HTMLButtonElement).disabled = true;
     const tag : HTMLInputElement = document.getElementById("input-poll-id") as HTMLInputElement;
     tag.disabled = true;
     const pollId = tag.value;
 
+    //clear logs
+    ClearCheckLogs();
+
     try{
-        const response = await (await fetch(apiURL + "/poll/" + pollId, {
+        //fetch poll meta
+        const pollMeta = await (await fetch(apiURL + "/poll/" + pollId, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
             },
         })).json();
+        (document.getElementById("poll-description") as HTMLElement).innerHTML = markdownToSafeHTML(pollMeta.description);
+        CheckSuccess("Poll's profile loaded.");
 
-        console.log(response);
-        (document.getElementById("poll-description") as HTMLElement).innerHTML = markdownToSafeHTML(response.description);
+        //fetch poll members
+        const pollMembers = await (await fetch(apiURL + "/poll/" + pollId + "/members", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        })).json() as { leaf: string; position: number }[];
+        CheckSuccess("Poll's members loaded.");
+
+        //verify poll's authenticity
+        const pollData = {
+            root: pollMeta.merkle_root,
+            members: pollMembers.map(member => member.leaf),
+            description: pollMeta.description
+        };
+        const pollHash = await sha256json(pollData);
+        if(pollHash != pollId){
+            CheckFailure("Server has altered poll's data.");
+            return;
+        }
+        CheckSuccess("Poll's data is legit.");
+        
+
+
+        //fetch and verify poll's votes
+    
     }
     catch(e : any){
         console.log(e);
+        CheckFailure("There is no such poll or server has censored it.");
     }
 
     //enable again
