@@ -1,6 +1,6 @@
-import { apiURL, p } from "../config"
+import { apiURL, merkleTreeHeight, p } from "../config"
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
-import { jsonToID } from "../crypto";
+import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot } from "../crypto";
 
 
 let errorCount = 0;
@@ -139,9 +139,32 @@ async function ButtonVote_click(e : Event){
     (document.getElementById("input-private_key") as HTMLInputElement).disabled =
     (document.getElementById("input-vote") as HTMLInputElement).disabled = true;
 
-    //try
-    pollMembers;
-    await wait(1000);
+    //get poll id as a number
+    const pollIdHex = "0x" + (document.getElementById("input-poll-id") as HTMLInputElement).value;
+    const pollIdNumber = BigInt("0x" + pollIdHex) % p;
+
+    //try to find the user in the members's list
+    const privateKey = BigInt((document.getElementById("input-private_key") as HTMLInputElement).value);
+    const publicKey = GeneratePublicKey(privateKey);
+    const voterLeaf = GenerateMemeberLeaf(
+        publicKey,
+        BigInt((document.getElementById("input-invitation") as HTMLInputElement).value)
+    );
+    const leafs: string[] = Array.isArray(pollMembers) ? pollMembers.map(m => m.leaf) : [];
+    const leafIndex = leafs.findIndex(l => l === voterLeaf.toString());
+    if(leafIndex >= 0){
+        //generate MerkleProof
+        const voteMerkleProof = ComputeMerkleProof(leafs, merkleTreeHeight, leafIndex);
+        //console.log(RecomputeMerkleRootFromProof(voterLeaf, leafIndex, voteMerkleProof) == ComputeMerkleRoot(leafs, merkleTreeHeight));
+        
+        //generate zkProof
+
+
+    }
+    else{
+        alert("You are not a member of this poll.");
+    }
+    
 
     //enable
     (document.getElementById("button-vote") as HTMLButtonElement).disabled =
@@ -167,11 +190,16 @@ export function init() {
     document.getElementById("input-vote")?.addEventListener("input", ZKValue_input);
 
     //autofill inputs
-    const pollId = getNextURLPrivateParameter("#" + getNextURLPrivateParameter().remainder).parameter;
+    const p1 = getNextURLPrivateParameter("#" + getNextURLPrivateParameter().remainder);
+    const pollId = p1.parameter;
     if(pollId.length){
         (document.getElementById("input-poll-id") as HTMLInputElement).value = pollId;
         ButtonVerifyPoll_click();
     }
+    const invitation = getNextURLPrivateParameter("#" + p1.remainder).parameter
+    if(invitation.length)
+        (document.getElementById("input-invitation") as HTMLInputElement).value = invitation;
+    
 
 
 }
