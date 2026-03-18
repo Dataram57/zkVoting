@@ -4,9 +4,14 @@
 //server
 import express from "express";
 
+//cors
+import cors from "cors";
+
 //db
 import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 import { neon } from "@neondatabase/serverless";
 
 //crypto
@@ -38,9 +43,16 @@ export async function getData() {
 //#region Server
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "https://zk-voting-two.vercel.app"
+    ]
+}));
 
 //Hello world
 app.get("/", (req, res) => {
@@ -223,16 +235,12 @@ app.post("/vote", async (req, res) => {
     }
 });
 
-
-
-//await snarkjs.groth16.verify(vKey, publicSignals, proof);
-
 //#endregion
 
 //================================================================
 //#region Startup
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
 });
 

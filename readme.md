@@ -1,6 +1,10 @@
 # zkVoting
 
 
+- [App](https://zk-voting-two.vercel.app/)
+- [Api](??)
+- [DB](??)
+
 ### Running server
 
 ```sh
