@@ -21,10 +21,10 @@ function GetTargetElement(event: PointerEvent): HTMLElement | null{
 };
 
 async function ButtonCopyValue_click(event: PointerEvent){
-  const target = GetTargetElement(event);
-  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
-    await navigator.clipboard.writeText(target.value);
-  }
+    const target = GetTargetElement(event);
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+        await navigator.clipboard.writeText(target.value);
+    }
 };
 
 

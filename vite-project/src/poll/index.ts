@@ -67,10 +67,14 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
                 },
             })).json();
             
-            //verify votes
+            // verify votes and build frequency map
             const pollVotes = pollVotesMeta.votes;
+
+            // initialize a frequency map
+            const voteCounts: Record<string, number> = {};
+
             for (const vote of pollVotes) {
-                console.log(vote);
+                //console.log(vote);
 
                 const isValid = await VerifyVote(
                     pollId,
@@ -80,12 +84,45 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
                     vote.proof
                 );
 
-                console.log(isValid);
+                //console.log(isValid);
+
+                // only count valid votes
+                if (isValid) {
+                    const val = vote.vote_value.toString(); // ensure key is string
+                    voteCounts[val] = (voteCounts[val] || 0) + 1;
+                }
             }
 
+            // print stats
+            if(Object.keys(voteCounts).length > 0){
+                //show panel
+                (document.getElementById("panel-results") as HTMLButtonElement).hidden = false;
 
+                //clear table
+                const table = document.getElementById("table-stats") as HTMLElement;
+                while (table.children.length > 1) {
+                    table.removeChild(table.lastChild as Node);
+                }
+
+                //add records
+                const pattern = document.getElementById("pattern-stats-row")?.innerText as string;
+                for (const [option, count] of Object.entries(voteCounts)) {
+                    // clone template
+                    table.insertAdjacentHTML("beforeend", pattern);
+
+                    // fill option
+                    const optionEl = table.querySelector("#pattern-stats-row-option") as HTMLElement;
+                    optionEl.id = "";
+                    optionEl.innerText = option.toString();
+
+                    // fill count
+                    const countEl = table.querySelector("#pattern-stats-row-count") as HTMLElement;
+                    countEl.id = "";
+                    countEl.innerText = count.toString();
+            
+                }
+            }
         }
-    
     }
     catch(e : any){
         console.log(e);

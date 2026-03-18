@@ -6,7 +6,6 @@
     <input id="input-poll-id" type="text" placeholder="Poll SHA256 id such as 51debf82..."/>
     <button id="button-verify">Verify</button>
     <p id="check_logs"></p>
-
 </article>
 
 <article id="poll-description" hidden>
@@ -16,4 +15,16 @@
 
 <article id="panel-results" hidden>
     <h2>Results</h2>
+    <table id="table-stats">
+        <tr>
+            <th>Option</th>
+            <th>Count</th>
+        </tr>
+        <script type="text" id="pattern-stats-row">
+            <tr>
+                <td id="pattern-stats-row-option">...</td>
+                <td id="pattern-stats-row-count">...</td>
+            </tr>
+        </script>
+    </table>
 </article>
