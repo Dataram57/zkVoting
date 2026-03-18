@@ -1,6 +1,6 @@
 import { apiURL, merkleTreeHeight, p } from "../config"
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
-import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot } from "../crypto";
+import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote } from "../crypto";
 
 
 let errorCount = 0;
@@ -123,11 +123,6 @@ function ZKValue_input(e : Event){
         }
 }
 
-
-function wait(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 async function ButtonVote_click(e : Event){
     //skip if errors are marked
     if(errorCount > 0)
@@ -140,16 +135,16 @@ async function ButtonVote_click(e : Event){
     (document.getElementById("input-vote") as HTMLInputElement).disabled = true;
 
     //get poll id as a number
-    const pollIdHex = "0x" + (document.getElementById("input-poll-id") as HTMLInputElement).value;
-    const pollIdNumber = BigInt("0x" + pollIdHex) % p;
+    const pollId = (document.getElementById("input-poll-id") as HTMLInputElement).value;
+
+    //get vote value
+    const voteValue = BigInt((document.getElementById("input-vote") as HTMLInputElement).value);;
 
     //try to find the user in the members's list
     const privateKey = BigInt((document.getElementById("input-private_key") as HTMLInputElement).value);
     const publicKey = GeneratePublicKey(privateKey);
-    const voterLeaf = GenerateMemeberLeaf(
-        publicKey,
-        BigInt((document.getElementById("input-invitation") as HTMLInputElement).value)
-    );
+    const invitation = BigInt((document.getElementById("input-invitation") as HTMLInputElement).value);
+    const voterLeaf = GenerateMemeberLeaf(publicKey, invitation);
     const leafs: string[] = Array.isArray(pollMembers) ? pollMembers.map(m => m.leaf) : [];
     const leafIndex = leafs.findIndex(l => l === voterLeaf.toString());
     if(leafIndex >= 0){
@@ -158,6 +153,8 @@ async function ButtonVote_click(e : Event){
         //console.log(RecomputeMerkleRootFromProof(voterLeaf, leafIndex, voteMerkleProof) == ComputeMerkleRoot(leafs, merkleTreeHeight));
         
         //generate zkProof
+        const vote = await GenerateVote(privateKey, leafIndex, invitation, pollId, voteValue, voteMerkleProof);
+        console.log(vote);
 
 
     }

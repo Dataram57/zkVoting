@@ -1,5 +1,7 @@
 
 import { poseidon1, poseidon2 } from "poseidon-lite";
+import * as snarkjs from "snarkjs";
+import { p } from "./config";
 
 export async function jsonToID<T>(obj: T): Promise<string> {
     const data = JSON.stringify(obj);
@@ -123,4 +125,34 @@ export function RecomputeMerkleRootFromProof(
     }
 
     return hash;
+}
+
+export async function GenerateVote(
+    privateKey: bigint,
+    publicKey_index: number,
+    invitation: bigint,
+    pollId: string,
+    vote: bigint,
+    merklePath: bigint[]
+) {
+    // Ensure pollId is hex-safe
+    const pollHex = pollId.startsWith("0x") ? pollId : "0x" + pollId;
+
+    const proofInput = {
+        // snarkjs expects strings, not bigint
+        privateKey: privateKey.toString(),
+        publicKey_index: publicKey_index.toString(),
+        invitation: invitation.toString(),
+        pollHash: (BigInt(pollHex) % p).toString(),
+        vote: vote.toString(),
+        merkle_leafs: merklePath.map(x => x.toString())
+    };
+
+    const { proof, publicSignals } = await snarkjs.groth16.fullProve(
+        proofInput,
+        "/circuits/vote.wasm",
+        "/circuits/vote.zkey"
+    );
+
+    return { proof, publicSignals };
 }
