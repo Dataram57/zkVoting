@@ -121,6 +121,39 @@ app.get("/poll/:pollId/members", async (req, res) => {
     }
 });
 
+// GET all votes for a poll, including proof
+app.get("/poll/:pollId/votes", async (req, res) => {
+    try {
+        const pollId = req.params.pollId;
+
+        // 1️⃣ Check if poll exists
+        const poll = await sql`
+            SELECT id
+            FROM polls
+            WHERE id = ${pollId}
+        `;
+
+        if (poll.length === 0) {
+            return res.status(404).json({ error: "Poll not found" });
+        }
+
+        // 2️⃣ Fetch votes including proof
+        const votes = await sql`
+            SELECT vote_value, nullifier, proof, created_at
+            FROM votes
+            WHERE poll_id = ${pollId}
+            ORDER BY created_at ASC
+        `;
+
+        // 3️⃣ Return votes
+        res.json({ pollId, votes });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Database error" });
+    }
+});
+
 //vote
 app.post("/vote", async (req, res) => {
     const voteData = req.body;

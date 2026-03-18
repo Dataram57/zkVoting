@@ -1,6 +1,6 @@
 import { apiURL } from "../config"
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
-import { jsonToID } from "../crypto";
+import { jsonToID, VerifyVote } from "../crypto";
 
 function ClearCheckLogs(){
     (document.getElementById("check_logs") as HTMLElement).innerText = "";
@@ -59,8 +59,31 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
         else{
             CheckSuccess("Poll's data is legit.");
             
-            //fetch and verify poll's votes
-            //..
+            //fetch votes
+            const pollVotesMeta = await (await fetch(apiURL + "/poll/" + pollId + "/votes", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            })).json();
+            
+            //verify votes
+            const pollVotes = pollVotesMeta.votes;
+            for (const vote of pollVotes) {
+                console.log(vote);
+
+                const isValid = await VerifyVote(
+                    pollId,
+                    pollData.root,
+                    vote.nullifier,
+                    vote.vote_value,
+                    vote.proof
+                );
+
+                console.log(isValid);
+            }
+
+
         }
     
     }

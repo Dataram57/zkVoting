@@ -2,6 +2,7 @@
 import { poseidon1, poseidon2 } from "poseidon-lite";
 import * as snarkjs from "snarkjs";
 import { p } from "./config";
+import vote_verifier from "./circuits/vote.json";
 
 export async function jsonToID<T>(obj: T): Promise<string> {
     const data = JSON.stringify(obj);
@@ -155,4 +156,29 @@ export async function GenerateVote(
     );
 
     return { proof, publicSignals };
+}
+
+export async function VerifyVote(
+    pollId : string,
+    pollMerkleRoot: string,
+    nullifier : string,
+    vote : string,
+    proof : any
+) : Promise<boolean> {
+    // Ensure pollId is hex-safe
+    const pollHex = pollId.startsWith("0x") ? pollId : "0x" + pollId;
+
+    //reconstruct public signals
+    const publicSignals = [
+        (BigInt(pollHex) % p).toString(),
+        pollMerkleRoot,
+        nullifier,
+        vote
+    ];
+    
+    return await snarkjs.groth16.verify(
+        vote_verifier,
+        publicSignals,
+        proof
+    ) as boolean;
 }

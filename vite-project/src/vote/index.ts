@@ -156,23 +156,30 @@ async function ButtonVote_click(e : Event){
         try{
             //get vote
             const vote = await GenerateVote(privateKey, leafIndex, invitation, pollId, voteValue, voteMerkleProof);
-            console.log(vote);
-
             //submit proof
-            const response = await (await fetch(apiURL + "/vote", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    pollId: pollId,
-                    vote: vote
-                })
-            })).text();
-            console.log(response);
-            
-        
-        
+            try{
+                const response = await (await fetch(apiURL + "/vote", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pollId: pollId,
+                        vote: vote
+                    })
+                })).json();
+                if(response.error){
+                    alert(response.error);
+                }
+                else{
+                    //success
+                    alert(response.message);
+                    return;
+                }
+            }catch(e : any){
+                console.log(e);
+                alert("Failed to submit the vote");
+            }
         }
         catch(e : any){
             console.log(e);
