@@ -1,8 +1,7 @@
 //================================================================
 //#region Requirements
 
-import {poseidon1 } from "poseidon-lite";
-const GeneratePublicKey = (secret: bigint): bigint => poseidon1([secret]);
+import { GeneratePublicKey } from "../crypto";
 import { p } from "../config";
 
 //#endregion

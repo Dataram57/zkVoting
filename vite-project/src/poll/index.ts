@@ -1,5 +1,6 @@
 import { apiURL } from "../config"
-import { getNextURLPrivateParameter, sha256json, markdownToSafeHTML } from "../lib";
+import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
+import { jsonToID } from "../crypto";
 
 function ClearCheckLogs(){
     (document.getElementById("check_logs") as HTMLElement).innerText = "";
@@ -52,7 +53,7 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
             members: pollMembers.map(member => member.leaf),
             description: pollMeta.description
         };
-        const pollHash = await sha256json(pollData);
+        const pollHash = await jsonToID(pollData);
         if(pollHash != pollId)
             CheckFailure("Server has altered poll's data.");
         else{

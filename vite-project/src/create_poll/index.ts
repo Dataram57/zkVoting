@@ -1,8 +1,5 @@
 
-import {poseidon2 } from "poseidon-lite";
-const GenerateMemeberLeaf = (public_key: bigint, mask: bigint = 0n): bigint => poseidon2([public_key, mask]);
-const PoseidonHash = (leaf_left : bigint = 0n, leaf_right : bigint = 0n) => poseidon2([leaf_left, leaf_right]);
-
+import { GenerateMemeberLeaf, ComputeMerkleRoot } from "../crypto";
 import { p, merkleTreeHeight, apiURL } from "../config";
 
 const maxParticipants : bigint = 1n << merkleTreeHeight;
@@ -135,31 +132,6 @@ function DisplaySuccess(){
     tag.classList.add("show");
 }
 
-
-function ComputeMerkleRoot(members: string[]): bigint {
-
-    const leafCount = maxParticipants
-    const leaves: bigint[] = new Array(leafCount).fill(0n);
-
-    for (let i = 0; i < members.length && i < leafCount; i++)
-        leaves[i] = BigInt(members[i]);
-
-    let level = leaves;
-
-    while (level.length > 1) {
-
-        const next: bigint[] = [];
-
-        for (let i = 0; i < level.length; i += 2) {
-            next.push(PoseidonHash(level[i], level[i + 1]));
-        }
-
-        level = next;
-    }
-
-    return level[0];
-}
-
 async function HostPoll(){
     //check errors
     if(errorCount != 0){
@@ -212,7 +184,7 @@ async function HostPoll(){
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                root: ComputeMerkleRoot(members).toString(),
+                root: ComputeMerkleRoot(members, merkleTreeHeight).toString(),
                 members: members,
                 description: (document.getElementById("poll-description") as HTMLInputElement).value
             })
