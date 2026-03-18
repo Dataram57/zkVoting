@@ -95,6 +95,18 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
 //================================================================
 //#region Vote
 
+function ClearVoteLogs(){
+    (document.getElementById("vote_logs") as HTMLElement).innerText = "";
+}
+
+function VoteSuccess(message : string){
+    (document.getElementById("vote_logs") as HTMLElement).innerText += "\n✅ " + message;
+}
+
+function VoteFailure(message : string){
+    (document.getElementById("vote_logs") as HTMLElement).innerText += "\n❌ " + message;
+}
+
 function ZKValue_input(e : Event){
     const input : HTMLInputElement = e.target as HTMLInputElement;
     const wasError : boolean = input.classList.contains("error");
@@ -128,6 +140,9 @@ async function ButtonVote_click(e : Event){
     if(errorCount > 0)
         return;
 
+    //clear logs
+    ClearVoteLogs();
+
     //disable
     (document.getElementById("button-vote") as HTMLButtonElement).disabled =
     (document.getElementById("input-invitation") as HTMLInputElement).disabled =
@@ -156,6 +171,8 @@ async function ButtonVote_click(e : Event){
         try{
             //get vote
             const vote = await GenerateVote(privateKey, leafIndex, invitation, pollId, voteValue, voteMerkleProof);
+            VoteSuccess("Vote's proof was generated successfully.");
+
             //submit proof
             try{
                 const response = await (await fetch(apiURL + "/vote", {
@@ -169,25 +186,26 @@ async function ButtonVote_click(e : Event){
                     })
                 })).json();
                 if(response.error){
-                    alert(response.error);
+                    //failure
+                    VoteFailure("Server: " + response.error);
                 }
                 else{
                     //success
-                    alert(response.message);
+                    VoteSuccess("Server: " + response.message);
                     return;
                 }
             }catch(e : any){
                 console.log(e);
-                alert("Failed to submit the vote");
+                VoteFailure("Failed to submit the vote");
             }
         }
         catch(e : any){
             console.log(e);
-            alert("Failed to construct the proof:" + e.toString());
+            VoteFailure("Failed to construct the vote's proof.");
         }
     }
     else{
-        alert("You are not a member of this poll.");
+        VoteFailure("You are not a member of this poll.");
     }
     
 
