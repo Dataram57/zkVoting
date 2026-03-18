@@ -153,10 +153,31 @@ async function ButtonVote_click(e : Event){
         //console.log(RecomputeMerkleRootFromProof(voterLeaf, leafIndex, voteMerkleProof) == ComputeMerkleRoot(leafs, merkleTreeHeight));
         
         //generate zkProof
-        const vote = await GenerateVote(privateKey, leafIndex, invitation, pollId, voteValue, voteMerkleProof);
-        console.log(vote);
+        try{
+            //get vote
+            const vote = await GenerateVote(privateKey, leafIndex, invitation, pollId, voteValue, voteMerkleProof);
+            console.log(vote);
 
-
+            //submit proof
+            const response = await (await fetch(apiURL + "/vote", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    pollId: pollId,
+                    vote: vote
+                })
+            })).text();
+            console.log(response);
+            
+        
+        
+        }
+        catch(e : any){
+            console.log(e);
+            alert("Failed to construct the proof:" + e.toString());
+        }
     }
     else{
         alert("You are not a member of this poll.");

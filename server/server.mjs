@@ -15,6 +15,7 @@ const Hash = (data) => crypto.createHash("sha256").update(data).digest("hex");
 
 //zk
 import * as snarkjs from "snarkjs";
+const p = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
 
 //zk-proof verifiers
 import vote_verifier from "./vote_verifier.json" with { type: "json" };
@@ -120,21 +121,73 @@ app.get("/poll/:pollId/members", async (req, res) => {
     }
 });
 
-
 //vote
 app.post("/vote", async (req, res) => {
-    //get data
     const voteData = req.body;
 
-    //verify vote
-    if(voteData.proof && voteData.signals)
-        if(await snarkjs.groth16.verify(vote_verifier, voteData.signals, voteData.proof)){
-            //proof is legit
-            //try to insert it into the db
+    try {
+        // 1️⃣ Fetch poll from DB
+        const poll = await sql`
+            SELECT id, merkle_root
+            FROM polls
+            WHERE id = ${voteData.pollId}
+        `;
 
+        if (poll.length === 0) {
+            return res.status(404).json({ error: "Poll not found" });
         }
 
-    res.json({ message: "Vote received", data: voteData });
+        // 2️⃣ Verify zk-proof
+        const isValid = await snarkjs.groth16.verify(
+            vote_verifier,
+            voteData.vote.publicSignals,
+            voteData.vote.proof
+        );
+
+        if (!isValid) {
+            return res.status(400).json({ error: "Proof failed verification." });
+        }
+
+        const publicSignals = voteData.vote.publicSignals;
+
+        // 3️⃣ Map signals based on your circuit
+        const out_pollHash   = BigInt(publicSignals[0]);
+        const out_merkleRoot = publicSignals[1];
+        const out_nullifier  = publicSignals[2];
+        const out_vote       = publicSignals[3];
+
+        // 4️⃣ Validate pollHash (modulo p, same as client)
+        const expectedPollHash = (BigInt(voteData.pollId.startsWith("0x") ? voteData.pollId : "0x" + voteData.pollId) % p);
+
+        if (out_pollHash !== expectedPollHash) {
+            return res.status(400).json({ error: "Poll hash mismatch" });
+        }
+
+        // 5️⃣ Validate Merkle root matches DB
+        if (out_merkleRoot !== poll[0].merkle_root) {
+            return res.status(400).json({ error: "Invalid merkle root" });
+        }
+
+        // 6️⃣ Insert vote
+        await sql`
+            INSERT INTO votes (poll_id, nullifier, vote_value, proof)
+            VALUES (
+                ${voteData.pollId},
+                ${out_nullifier.toString()},
+                ${out_vote.toString()},
+                ${JSON.stringify(voteData.vote.proof)}
+            )
+        `;
+
+        return res.json({ message: "Vote recorded successfully" });
+
+    } catch (error) {
+        if (error.code === "23505") {
+            return res.status(400).json({ error: "You have already voted" });
+        }
+        console.error(error);
+        return res.status(500).json({ error: "Database error" });
+    }
 });
 
 
