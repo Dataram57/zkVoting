@@ -1,5 +1,14 @@
 import { apiURL } from "../config"
 import { getNextURLPrivateParameter, sha256json, markdownToSafeHTML } from "../lib";
+import { p } from "../config"
+
+
+let errorCount = 0;
+
+let pollMembers : { leaf: string; position: number }[] | null = null;
+
+//================================================================
+//#region Verify Poll
 
 function ClearCheckLogs(){
     (document.getElementById("check_logs") as HTMLElement).innerText = "";
@@ -24,6 +33,9 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
     //clear logs
     ClearCheckLogs();
 
+    //clear array
+    pollMembers = null;
+
     try{
         //fetch poll meta
         const pollMeta = await (await fetch(apiURL + "/poll/" + pollId, {
@@ -37,7 +49,7 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
         (document.getElementById("poll-description") as HTMLButtonElement).hidden = false;
 
         //fetch poll members
-        const pollMembers = await (await fetch(apiURL + "/poll/" + pollId + "/members", {
+        pollMembers = await (await fetch(apiURL + "/poll/" + pollId + "/members", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -78,9 +90,81 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
     tag.disabled = false;
 }
 
+//#endregion
+
+//================================================================
+//#region Vote
+
+function ZKValue_input(e : Event){
+    const input : HTMLInputElement = e.target as HTMLInputElement;
+    const wasError : boolean = input.classList.contains("error");
+    let isError : boolean = false;
+    if(input.value.length != 0){        
+        try{
+            const secret : bigint= BigInt(input.value);
+            if(!(secret >= 0 && secret < p))
+                isError = true;
+        }
+        catch(error : any){
+            isError = true;
+        }
+    }
+    
+    //check display
+    if(isError != wasError)
+        if(isError)
+        {
+            errorCount++;
+            input.classList.add("error");
+        }
+        else{
+            errorCount--;
+            input.classList.remove("error");
+        }
+}
+
+
+function wait(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function ButtonVote_click(e : Event){
+    //skip if errors are marked
+    if(errorCount > 0)
+        return;
+
+    //disable
+    (document.getElementById("button-vote") as HTMLButtonElement).disabled =
+    (document.getElementById("input-invitation") as HTMLInputElement).disabled =
+    (document.getElementById("input-private_key") as HTMLInputElement).disabled =
+    (document.getElementById("input-vote") as HTMLInputElement).disabled = true;
+
+    //try
+    pollMembers;
+    await wait(1000);
+
+    //enable
+    (document.getElementById("button-vote") as HTMLButtonElement).disabled =
+    (document.getElementById("input-invitation") as HTMLInputElement).disabled = 
+    (document.getElementById("input-private_key") as HTMLInputElement).disabled =
+    (document.getElementById("input-vote") as HTMLInputElement).disabled = false;
+}
+
+
+
+
+//#endregion
+
+//================================================================
+//#region Init
+
 export function init() {
     //events
     document.getElementById("button-verify")?.addEventListener("click", ButtonVerifyPoll_click);
+    document.getElementById("button-vote")?.addEventListener("click", ButtonVote_click);
+    document.getElementById("input-invitation")?.addEventListener("input", ZKValue_input);
+    document.getElementById("input-private_key")?.addEventListener("input", ZKValue_input);
+    document.getElementById("input-vote")?.addEventListener("input", ZKValue_input);
 
     //autofill inputs
     const pollId = getNextURLPrivateParameter("#" + getNextURLPrivateParameter().remainder).parameter;
@@ -89,6 +173,9 @@ export function init() {
         ButtonVerifyPoll_click();
     }
 
+
 }
 
 export function destroy() {}
+
+//#endregion

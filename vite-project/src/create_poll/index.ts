@@ -260,6 +260,11 @@ async function HostPoll(){
 
 
 export function init() {
+    //reset vars
+    isBlocked = false;
+    isPushing = false;
+    errorCount = 0;
+
     //pariticipants - buttons
     document.getElementById("button-add_paricipant")?.addEventListener("click", AddNewParticipant);
     document.getElementById("button-add_n_pariticipants")?.addEventListener("click", AddN_NewPariticipants);
