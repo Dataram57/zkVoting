@@ -1,5 +1,5 @@
 import * as snarkjs from "snarkjs";
-import vote_verifier from "../vote_verifier.json" assert { type: "json" };
+import vote_verifier from "../../vote_verifier.json" assert { type: "json" };
 
 export const verifyProof = async (publicSignals, proof) => {
     return snarkjs.groth16.verify(vote_verifier, publicSignals, proof);
