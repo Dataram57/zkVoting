@@ -1,0 +1,68 @@
+import { sql } from "./_lib/db.js";
+import { verifyProof, p } from "./_lib/zk.js";
+
+export default async function handler(req, res) {
+    if (req.method !== "POST") {
+        return res.status(405).end();
+    }
+
+    const voteData = req.body;
+
+    try {
+        const poll = await sql`
+            SELECT id, merkle_root
+            FROM polls
+            WHERE id = ${voteData.pollId}
+        `;
+
+        if (poll.length === 0) {
+            return res.status(404).json({ error: "Poll not found" });
+        }
+
+        const isValid = await verifyProof(
+            voteData.vote.publicSignals,
+            voteData.vote.proof
+        );
+
+        if (!isValid) {
+            return res.status(400).json({ error: "Proof failed verification." });
+        }
+
+        const ps = voteData.vote.publicSignals;
+
+        const out_pollHash = BigInt(ps[0]);
+        const out_merkleRoot = ps[1];
+        const out_nullifier = ps[2];
+        const out_vote = ps[3];
+
+        const expectedPollHash =
+            BigInt("0x" + voteData.pollId.replace(/^0x/, "")) % p;
+
+        if (out_pollHash !== expectedPollHash) {
+            return res.status(400).json({ error: "Poll hash mismatch" });
+        }
+
+        if (out_merkleRoot !== poll[0].merkle_root) {
+            return res.status(400).json({ error: "Invalid merkle root" });
+        }
+
+        await sql`
+            INSERT INTO votes (poll_id, nullifier, vote_value, proof)
+            VALUES (
+            ${voteData.pollId},
+            ${out_nullifier.toString()},
+            ${out_vote.toString()},
+            ${JSON.stringify(voteData.vote.proof)}
+            )
+        `;
+
+        res.json({ message: "Vote recorded successfully" });
+
+    } catch (error) {
+        if (error.code === "23505") {
+            return res.status(400).json({ error: "You have already voted" });
+        }
+
+        res.status(500).json({ error: "Database error" });
+    }
+}
