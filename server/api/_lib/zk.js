@@ -2,6 +2,8 @@ import * as snarkjs from "snarkjs";
 
 //================================================================
 //import vote_verifier from "../../vote_verifier.json" assert { type: "json" };
+import vote_verifier from "../circuits/vote_verifier.json" with { type: "json" };
+/*
 import fs from "fs";
 import path from "path";
 
@@ -23,10 +25,11 @@ export function getVerifier() {
 
     return cachedVerifier;
 }
+    */
 //================================================================
 
 export const verifyProof = async (publicSignals, proof) => {
-  const verifier = getVerifier();
+  const verifier = vote_verifier;
   return snarkjs.groth16.verify(verifier, publicSignals, proof);
 };
 
