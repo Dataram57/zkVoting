@@ -2,6 +2,12 @@ import { sql } from "./_lib/db.js";
 import { Hash } from "./_lib/crypto.js";
 
 export default async function handler(req, res) {
+    //================================
+    //cors
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    //================================
+
     if (req.method !== "POST") {
         return res.status(405).end();
     }
