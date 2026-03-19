@@ -7,4 +7,7 @@
 
 `server`:
 - Input checks
-- Serverless
+
+
+Crypto
+- Ceremony / Existing trusted setup

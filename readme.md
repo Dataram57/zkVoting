@@ -1,16 +1,23 @@
 # zkVoting
 
-- [App (vercel)](https://zk-voting-two.vercel.app/)
-- [Api (Render)](https://zkvotingapi.onrender.com)
-- DB is secret
+**Anonymous Voting System** built on zkSNARKs.
 
-# Running
+## Deployed demos
 
-```
-nix develop
-```
+- App: [reptillian-zkvoting.vercel.app](https://reptillian-zkvoting.vercel.app)
+- API server: [reptillian-zkvoting-api.vercel.app](https://reptillian-zkvoting-api.vercel.app)
+- Database: *Secret*
 
-### Front-End
+# Running locally
+
+### Requirements
+
+- nodejs + npm
+- circom
+
+You can also use flakes with `nix develop`.
+
+### Running Front-End
 
 ```sh
 cd vite-project
@@ -18,17 +25,17 @@ npm install
 npm run dev
 ```
 
-### API
+### Setting up the Database
+
+Run [/db/setup.sql](/db/setup.sql) in your postgress database.
+
+### Running API
 
 ```sh
 cd server
 npm install
 npm run start
 ```
-
-### Database
-
-postgres.
 
 ### Compiling Circuits
 
