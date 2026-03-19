@@ -1,11 +1,11 @@
 import { sql } from "./_lib/db.js";
 import { verifyProof, p } from "./_lib/zk.js";
+import { applyCors } from "../_lib/cors.js";
 
 export default async function handler(req, res) {
     //================================
-    //cors
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    // CORS headers
+    if (applyCors(req, res)) return;
     //================================
     
     if (req.method !== "POST") {

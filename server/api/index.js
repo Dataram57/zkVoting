@@ -1,8 +1,9 @@
+import { applyCors } from "../_lib/cors.js";
+
 export default function handler(req, res) {
     //================================
-    //cors
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    // CORS headers
+    if (applyCors(req, res)) return;
     //================================
     res.json({ message: "API is running" });
 }
