@@ -68,7 +68,7 @@ export default async function handler(req, res) {
         if (error.code === "23505") {
             return res.status(400).json({ error: "You have already voted" });
         }
-        console.log(error);
+        console.error(error);
         res.status(500).json({ error: "Database error" });
     }
 }
