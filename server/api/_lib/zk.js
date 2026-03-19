@@ -9,7 +9,7 @@ let cachedVerifier;
 
 export function getVerifier() {
     if (!cachedVerifier) {
-        const verifierPath = path.join(process.cwd(), "api", "../../vote_verifier.json");
+        const verifierPath = path.join(process.cwd(), "api", "../circuits/vote_verifier.json");
         cachedVerifier = JSON.parse(fs.readFileSync(verifierPath, "utf-8"));
     }
     return cachedVerifier;
