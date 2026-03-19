@@ -1,5 +1,0 @@
-{
-    "build": {
-        "includeFiles": ["api/circuits/vote_verifier.json"]
-    }
-}
