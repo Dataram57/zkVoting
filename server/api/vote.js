@@ -1,6 +1,6 @@
 import { sql } from "./_lib/db.js";
 import { verifyProof, p } from "./_lib/zk.js";
-import { applyCors } from "../_lib/cors.js";
+import { applyCors } from "./_lib/cors.js";
 
 export default async function handler(req, res) {
     //================================
