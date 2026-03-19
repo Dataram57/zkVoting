@@ -1,6 +1,7 @@
-import { apiURL, merkleTreeHeight, p } from "../config"
+import { merkleTreeHeight, p } from "../config"
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
 import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote } from "../crypto";
+import { Api_GetPoll, Api_GetPollMembers, Api_Vote } from "../api";
 
 
 let errorCount = 0;
@@ -38,23 +39,13 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
 
     try{
         //fetch poll meta
-        const pollMeta = await (await fetch(apiURL + "/poll/" + pollId, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        })).json();
+        const pollMeta = await (await Api_GetPoll(pollId)).json();
         (document.getElementById("poll-description") as HTMLElement).innerHTML = markdownToSafeHTML(pollMeta.description);
         CheckSuccess("Poll's profile loaded.");
         (document.getElementById("poll-description") as HTMLButtonElement).hidden = false;
 
         //fetch poll members
-        pollMembers = await (await fetch(apiURL + "/poll/" + pollId + "/members", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        })).json() as { leaf: string; position: number }[];
+        pollMembers = await (await Api_GetPollMembers(pollId)).json() as { leaf: string; position: number }[];
         CheckSuccess("Poll's members loaded.");
 
         //verify poll's authenticity
@@ -175,16 +166,7 @@ async function ButtonVote_click(e : Event){
 
             //submit proof
             try{
-                const response = await (await fetch(apiURL + "/vote", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        pollId: pollId,
-                        vote: vote
-                    })
-                })).json();
+                const response = await (await Api_Vote(pollId, vote)).json();
                 if(response.error){
                     //failure
                     VoteFailure("Server: " + response.error);

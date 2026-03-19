@@ -1,6 +1,7 @@
 
 import { GenerateMemeberLeaf, ComputeMerkleRoot } from "../crypto";
-import { p, merkleTreeHeight, apiURL } from "../config";
+import { p, merkleTreeHeight } from "../config";
+import { Api_CreatePoll } from "../api";
 
 const maxParticipants : bigint = 1n << merkleTreeHeight;
 
@@ -178,17 +179,11 @@ async function HostPoll(){
 
     //form query
     try{
-        const response = await fetch(apiURL + "/create_poll", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                root: ComputeMerkleRoot(members, merkleTreeHeight).toString(),
-                members: members,
-                description: (document.getElementById("poll-description") as HTMLInputElement).value
-            })
-        });
+        const response = await Api_CreatePoll(
+            (document.getElementById("poll-description") as HTMLInputElement).value,
+            members
+        );
+        
         const data = await response.json();
         if(!data.id)
             throw 0;

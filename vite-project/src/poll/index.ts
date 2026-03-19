@@ -1,6 +1,6 @@
-import { apiURL } from "../config"
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
 import { jsonToID, VerifyVote } from "../crypto";
+import { Api_GetPoll, Api_GetPollMembers, Api_GetPollVotes } from "../api";
 
 function ClearCheckLogs(){
     (document.getElementById("check_logs") as HTMLElement).innerText = "";
@@ -28,23 +28,13 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
 
     try{
         //fetch poll meta
-        const pollMeta = await (await fetch(apiURL + "/poll/" + pollId, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        })).json();
+        const pollMeta = await (await Api_GetPoll(pollId)).json();
         (document.getElementById("poll-description") as HTMLElement).innerHTML = markdownToSafeHTML(pollMeta.description);
         CheckSuccess("Poll's profile loaded.");
         (document.getElementById("poll-description") as HTMLButtonElement).hidden = false;
 
         //fetch poll members
-        const pollMembers = await (await fetch(apiURL + "/poll/" + pollId + "/members", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        })).json() as { leaf: string; position: number }[];
+        const pollMembers = await (await Api_GetPollMembers(pollId)).json() as { leaf: string; position: number }[];
         CheckSuccess("Poll's members loaded.");
 
         //verify poll's authenticity
@@ -60,12 +50,7 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
             CheckSuccess("Poll's data is legit.");
             
             //fetch votes
-            const pollVotesMeta = await (await fetch(apiURL + "/poll/" + pollId + "/votes", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-            })).json();
+            const pollVotesMeta = await (await Api_GetPollVotes(pollId)).json();
             
             // verify votes and build frequency map
             const pollVotes = pollVotesMeta.votes;
