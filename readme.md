@@ -37,6 +37,12 @@ npm install
 npm run start
 ```
 
+or via:
+
+```sh
+npx vercel dev --yes
+```
+
 ### Compiling Circuits
 
 ```sh

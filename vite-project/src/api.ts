@@ -25,7 +25,7 @@ export function Api_CreatePoll(
 export function Api_GetPoll(
     pollId : string
 ) : Promise<Response>{
-    return fetch(apiURL + "/poll/" + pollId, {
+    return fetch(apiURL + "/poll/?pollId=" + pollId, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
@@ -57,7 +57,8 @@ export function Api_GetPollVotes(
 
 export function Api_Vote(
     pollId : string,
-    vote : any
+    vote : any,
+    voteValue: string
 ) : Promise<Response>{
     return fetch(apiURL + "/vote", {
         method: "POST",
@@ -66,7 +67,8 @@ export function Api_Vote(
         },
         body: JSON.stringify({
             pollId: pollId,
-            vote: vote
+            vote: vote,
+            voteValue: voteValue
         })
     })
 }
