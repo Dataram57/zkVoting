@@ -10,11 +10,11 @@ window.onload = async (): Promise<void> => {
     tagPageContent = document.getElementsByTagName('main')[0] as HTMLElement;
 
     // Update page
-    await LoadPage(null, { skipHistory: true });
+    await LoadPage(null, null, { skipHistory: true });
 };
 
 window.onpopstate = (): void => {
-    LoadPage(null, { skipHistory: true });
+    LoadPage(null, null, { skipHistory: true });
 };
 
 //#endregion
@@ -54,9 +54,14 @@ interface LoadPageOptions {
 
 const LoadPage = async (
     pageName: string | null,
+    event: Event | null,
     options?: LoadPageOptions
 ): Promise<void> => {
+    //prevent event
+    if(event)
+        event.preventDefault();
 
+    //let the content section be loaded/intiatied
     if (!tagPageContent) return;
 
     // History
