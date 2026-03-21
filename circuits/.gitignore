@@ -7,3 +7,7 @@
 circomlib/**
 circomlib
 .nix-bin/**
+
+
+# public deploy
+!public_deploy/**
