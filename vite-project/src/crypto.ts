@@ -14,6 +14,15 @@ export async function jsonToID<T>(obj: T): Promise<string> {
         .join("");
 }
 
+export async function voteValueToVoteHash(data : string) : Promise<bigint> {
+    const bytes = new TextEncoder().encode(data);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
+    const hash = Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+    return BigInt("0x" + hash) % p;
+}
+
 export function GeneratePublicKey(secret: bigint): bigint{
     return poseidon1([secret]);
 }
@@ -133,7 +142,7 @@ export async function GenerateVote(
     publicKey_index: number,
     invitation: bigint,
     pollId: string,
-    vote: bigint,
+    vote: string,
     merklePath: bigint[]
 ) {
     // Ensure pollId is hex-safe
@@ -145,7 +154,7 @@ export async function GenerateVote(
         publicKey_index: publicKey_index.toString(),
         invitation: invitation.toString(),
         pollHash: (BigInt(pollHex) % p).toString(),
-        vote: vote.toString(),
+        vote: (await voteValueToVoteHash(vote)).toString(),
         merkle_leafs: merklePath.map(x => x.toString())
     };
 
@@ -173,7 +182,7 @@ export async function VerifyVote(
         (BigInt(pollHex) % p).toString(),
         pollMerkleRoot,
         nullifier,
-        vote
+        (await voteValueToVoteHash(vote)).toString()
     ];
     
     return await snarkjs.groth16.verify(

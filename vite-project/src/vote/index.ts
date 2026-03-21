@@ -144,7 +144,7 @@ async function ButtonVote_click(e : Event){
     const pollId = (document.getElementById("input-poll-id") as HTMLInputElement).value;
 
     //get vote value
-    const voteValue = BigInt((document.getElementById("input-vote") as HTMLInputElement).value);;
+    const voteValue = (document.getElementById("input-vote") as HTMLInputElement).value;
 
     //try to find the user in the members's list
     const privateKey = BigInt((document.getElementById("input-private_key") as HTMLInputElement).value);
@@ -166,7 +166,7 @@ async function ButtonVote_click(e : Event){
 
             //submit proof
             try{
-                const response = await (await Api_Vote(pollId, vote)).json();
+                const response = await (await Api_Vote(pollId, vote, voteValue)).json();
                 if(response.error){
                     //failure
                     VoteFailure("Server: " + response.error);
@@ -212,7 +212,6 @@ export function init() {
     document.getElementById("button-vote")?.addEventListener("click", ButtonVote_click);
     document.getElementById("input-invitation")?.addEventListener("input", ZKValue_input);
     document.getElementById("input-private_key")?.addEventListener("input", ZKValue_input);
-    document.getElementById("input-vote")?.addEventListener("input", ZKValue_input);
 
     //autofill inputs
     const p1 = getNextURLPrivateParameter("#" + getNextURLPrivateParameter().remainder);

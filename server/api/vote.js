@@ -1,6 +1,7 @@
 import { sql } from "./_lib/db.js";
 import { verifyProof, p } from "./_lib/zk.js";
 import { applyCors } from "./_lib/cors.js";
+import { Hash } from "./_lib/crypto.js";
 
 export default async function handler(req, res) {
     //================================
@@ -44,6 +45,8 @@ export default async function handler(req, res) {
         const expectedPollHash =
             BigInt("0x" + voteData.pollId.replace(/^0x/, "")) % p;
 
+        const expectedVote = (BigInt("0x" + Hash(voteData.voteValue)) % p).toString();
+
         if (out_pollHash !== expectedPollHash) {
             return res.status(400).json({ error: "Poll hash mismatch" });
         }
@@ -52,12 +55,16 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Invalid merkle root" });
         }
 
+        if (expectedVote !== out_vote) {
+            return res.status(400).json({ error: "Vote hash mismatch" });
+        }
+
         await sql`
             INSERT INTO votes (poll_id, nullifier, vote_value, proof)
             VALUES (
             ${voteData.pollId},
             ${out_nullifier.toString()},
-            ${out_vote.toString()},
+            ${voteData.voteValue.toString()},
             ${JSON.stringify(voteData.vote.proof)}
             )
         `;
