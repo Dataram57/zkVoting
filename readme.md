@@ -61,10 +61,11 @@ cd circomlib
 git checkout 35e54ea21da3e8762557234298dbb553c175ea8d
 ```
 
+Directory `/circuits` also contains its own separate `flake.nix`.
+
 ### Compiling
 
 ```sh
 cd circuits
-nix develop
 ./compile_groth16.sh
 ```
