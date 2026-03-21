@@ -7,7 +7,5 @@
 
 `server`:
 - Input checks
-
-
-Crypto
-- Ceremony / Existing trusted setup
+- Anti-spam checks:
+    - IP based (3 polls per IP)
