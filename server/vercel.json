@@ -1,13 +1,8 @@
 {
-  "functions": {
-    "api/cron-task.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "crons": [
-    {
-      "path": "/api/cron-task",
-      "schedule": "0 0 * * *"
-    }
-  ]
+    "crons": [
+        {
+            "path": "/api/cron-task",
+            "schedule": "0 0 * * *"
+        }
+    ]
 }
