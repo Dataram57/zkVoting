@@ -1,10 +1,13 @@
 import { sql } from "./_lib/db.js";
 
-export default async function handler(req, res) {
-    // Check secret token
-    const authHeader = req.headers['authorization'];
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`)
-        return res.status(401);
+export default async function handler(request, response) {
+    const authHeader = request.headers.get('authorization');
+    if (
+        !process.env.CRON_SECRET ||
+        authHeader !== `Bearer ${process.env.CRON_SECRET}`
+    ) {
+        return response.status(401).json({ success: false });
+    }
     console.log("test");
     //delete polls older than 3 days
     await sql`
@@ -13,5 +16,5 @@ export default async function handler(req, res) {
     `;
 
     //end
-    res.status(200).json({ message: "Task executed" });
+    response.status(200).json({ message: "Task executed" });
 }
