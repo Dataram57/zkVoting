@@ -8,7 +8,7 @@ export default async function handler(req, res) {
             status: 401,
         }
     );
-
+    console.log("test");
     //delete polls older than 3 days
     await sql`
         DELETE FROM polls
