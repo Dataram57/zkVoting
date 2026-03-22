@@ -2,10 +2,12 @@ import { sql } from "./_lib/db.js";
 
 export default async function handler(req, res) {
     // Check secret token
-    const token = req.headers['x-cron-secret'];
-    if (!token || token !== process.env.CRON_SECRET) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`)
+        return new Response('Unauthorized', {
+            status: 401,
+        }
+    );
 
     //delete polls older than 3 days
     await sql`
