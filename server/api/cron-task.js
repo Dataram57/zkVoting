@@ -4,10 +4,7 @@ export default async function handler(req, res) {
     // Check secret token
     const authHeader = req.headers['authorization'];
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`)
-        return new Response('Unauthorized', {
-            status: 401,
-        }
-    );
+        return res.status(401);
     console.log("test");
     //delete polls older than 3 days
     await sql`
