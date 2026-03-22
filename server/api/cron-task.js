@@ -2,7 +2,8 @@ import { sql } from "./_lib/db.js";
 
 export default async function handler(request, response) {
     const authHeader = request.headers.authorization;
-
+    console.log(request.headers);
+    console.log(process.env.CRON_SECRET);
     if (
         !process.env.CRON_SECRET ||
         authHeader !== `Bearer ${process.env.CRON_SECRET}`
