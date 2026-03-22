@@ -39,6 +39,8 @@ npm install
 npx vercel dev --yes
 ```
 
+Please also configure `/server/.env` using `/server/.env.base` (some fields can be automatically generated using vercel).
+
 ## Circuits
 
 ### Trusted setup:
