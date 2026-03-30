@@ -5,6 +5,7 @@
 - Checking if user has already casted a vote.
 - User-friendly options defining and picking.
 - Information on server's limits.
+- Users can check if someone belongs to the poll.
 
 `server`:
 - Input checks
@@ -20,3 +21,6 @@
 
 Cryptography:
 - Explanation on techniques used.
+- Use additional salt for hashing to create/isolate sepearte domains.
+- Use additional salt for obtaining the hash of the poll. (`Poseidon(SHA256(poll) % p, salt)`)
+- Sybil attack clarification.
