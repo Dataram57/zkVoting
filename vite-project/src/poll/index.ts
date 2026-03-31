@@ -1,5 +1,5 @@
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
-import { jsonToID, VerifyVote } from "../crypto";
+import { jsonToID, VerifyVote, type VoteSubmission } from "../crypto";
 import { Api_GetPoll, Api_GetPollMembers, Api_GetPollVotes } from "../api";
 
 function ClearCheckLogs(){
@@ -58,22 +58,25 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
             // initialize a frequency map
             const voteCounts: Record<string, number> = {};
 
-            for (const vote of pollVotes) {
+            for (const voteRecord of pollVotes) {
                 //console.log(vote);
 
-                const isValid = await VerifyVote(
-                    pollId,
-                    pollData.root,
-                    vote.nullifier,
-                    vote.vote_value,
-                    vote.proof
-                );
+                const vote : VoteSubmission = {
+                    pollId: pollId,
+                    pollMerkleRoot: pollData.root,
+                    nullifier: voteRecord.nullifier as string,
+                    voteValue: voteRecord.vote_value as string,
+                    proof: voteRecord.proof  
+                };
+
+
+                const isValid = await VerifyVote(vote, pollId, pollData.root);
 
                 //console.log(isValid);
 
                 // only count valid votes
                 if (isValid) {
-                    const val = vote.vote_value.toString(); // ensure key is string
+                    const val = voteRecord.vote_value.toString(); // ensure key is string
                     voteCounts[val] = (voteCounts[val] || 0) + 1;
                 }
             }

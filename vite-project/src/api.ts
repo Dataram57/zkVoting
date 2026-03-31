@@ -1,7 +1,7 @@
 
 import { apiURL } from "./config";
 import { merkleTreeHeight } from "./config";
-import { ComputeMerkleRoot } from "./crypto";
+import { ComputeMerkleRoot, type VoteSubmission } from "./crypto";
 
 
 export function Api_CreatePoll(
@@ -56,19 +56,13 @@ export function Api_GetPollVotes(
 }
 
 export function Api_Vote(
-    pollId : string,
-    vote : any,
-    voteValue: string
+    vote : VoteSubmission
 ) : Promise<Response>{
     return fetch(apiURL + "/vote", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            pollId: pollId,
-            vote: vote,
-            voteValue: voteValue
-        })
+        body: JSON.stringify(vote)
     })
 }

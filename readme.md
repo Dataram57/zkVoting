@@ -33,10 +33,18 @@ Run [/db/setup.sql](/db/setup.sql) in your postgress database.
 
 ## Running API
 
+Setup:
 ```sh
 cd server
 npm install
+
+#????????????????????????????????   # Recommended!!!
+# Testing with Vercel
 npx vercel dev --yes
+#::::::::::::::::::::::::::::::::
+# Vercel-like tester
+npx tsx test_server.js
+
 ```
 
 Please also configure `/server/.env` using `/server/.env.base` (some fields can be automatically generated using vercel).

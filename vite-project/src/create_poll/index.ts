@@ -219,6 +219,9 @@ async function HostPoll(){
     catch(error : any){
         isPushing = false;
         DisplayError("Error: " + error.toString());
+
+        //re-enable clicking at the host_poll button
+        (document.getElementById("button-host_poll") as HTMLButtonElement).disabled = false;
     }
     console.log(isPushing);
 }

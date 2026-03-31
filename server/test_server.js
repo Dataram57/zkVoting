@@ -1,80 +1,99 @@
-import express from "express";
-import { fileURLToPath } from "url";
-import { dirname, join, extname } from "path";
-import fs from "fs";
+// Vercel-like local API server with TypeScript support
+// - /api/* routing
+// - supports .js and .ts (via tsx)
+// - no cache (hot reload friendly)
+
+import http from "http";
+import { readdirSync, statSync } from "fs";
+import { join, extname } from "path";
+import url from "url";
+import { pathToFileURL } from "url";
 import dotenv from "dotenv";
+dotenv.config();
 
-// ===============================
-// Load environment variables first
-// ===============================
-dotenv.config({ path: ".env.base" });
+const API_DIR = join(process.cwd(), "api");
 
-// ===============================
-// Setup paths
-// ===============================
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const API_DIR = join(__dirname, "api");
-
-// ===============================
-// Express app
-// ===============================
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// JSON middleware
-app.use(express.json());
-
-// ===============================
-// Helper: Recursively map routes (lazy-load)
-// ===============================
-function mapRoutes(dir, baseRoute = "/api") {
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
+// Recursively collect API routes
+function getRoutes(dir, baseRoute = "") {
+  const entries = readdirSync(dir);
+  let routes = {};
 
   for (const entry of entries) {
-    const fullPath = join(dir, entry.name);
+    const fullPath = join(dir, entry);
+    const stat = statSync(fullPath);
 
-    // Skip private/internal folders
-    if (entry.isDirectory() && entry.name.startsWith("_")) continue;
+    if (stat.isDirectory()) {
+      Object.assign(routes, getRoutes(fullPath, baseRoute + "/" + entry));
+    } else if ([".js", ".ts"].includes(extname(entry))) {
+      const routePath =
+        (baseRoute + "/" + entry.replace(/\.(js|ts)$/, ""))
+          .replace(/\/index$/, "") || "/";
 
-    if (entry.isDirectory()) {
-      // Recurse into subfolder
-      const subRoute = `${baseRoute}/${entry.name}`;
-      mapRoutes(fullPath, subRoute);
-    } else if (entry.isFile() && extname(entry.name) === ".js") {
-      let route = baseRoute;
-      if (entry.name !== "index.js") {
-        route += `/${entry.name.replace(".js", "")}`;
-      }
-
-      // Lazy-load handler on request
-      app.all(route, async (req, res, next) => {
-        try {
-          const mod = await import(fullPath);
-          const handler = mod.default;
-          if (!handler) {
-            res.status(500).json({ error: "No default export found" });
-            return;
-          }
-          return handler(req, res);
-        } catch (err) {
-          console.error(`Failed to handle ${route}:`, err);
-          res.status(500).json({ error: "Internal Server Error" });
-        }
-      });
-
-      console.log(`Mapped ${fullPath} → ${route}`);
+      routes[routePath] = fullPath;
     }
+  }
+
+  return routes;
+}
+
+async function handler(req, res) {
+  const parsedUrl = url.parse(req.url, true);
+  let pathname = parsedUrl.pathname;
+
+  // Only handle /api/*
+  if (!pathname.startsWith("/api")) {
+    res.writeHead(404);
+    res.end("Not Found");
+    return;
+  }
+
+  // Strip /api prefix
+  pathname = pathname.replace(/^\/api/, "") || "/";
+
+  // Rebuild routes on every request (dev-friendly)
+  const routes = getRoutes(API_DIR);
+  const file = routes[pathname];
+
+  if (!file) {
+    res.writeHead(404);
+    res.end("API route not found");
+    return;
+  }
+
+  try {
+    // 🔥 Fix: proper file URL + cache busting
+    const fileUrl = pathToFileURL(file).href + `?t=${Date.now()}`;
+
+    const mod = await import(fileUrl);
+    const fn = mod.default || mod;
+
+    // Attach query like Vercel
+    req.query = parsedUrl.query;
+
+    // Helpers
+    const send = (status, data) => {
+      res.writeHead(status, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(data));
+    };
+
+    res.status = (code) => {
+      res.statusCode = code;
+      return res;
+    };
+
+    res.json = (data) => send(res.statusCode || 200, data);
+
+    await fn(req, res);
+  } catch (err) {
+    console.error(err);
+    res.writeHead(500);
+    res.end("Server Error");
   }
 }
 
-// Map all API routes
-mapRoutes(API_DIR);
+const server = http.createServer(handler);
 
-// ===============================
-// Start server
-// ===============================
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-  console.log(`Loaded environment variables from .env.base`);
+const PORT = 3000;
+server.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}/api`);
 });

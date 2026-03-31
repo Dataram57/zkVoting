@@ -1,6 +1,6 @@
 import { merkleTreeHeight, p } from "../config"
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
-import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote } from "../crypto";
+import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote, type VoteSubmission } from "../crypto";
 import { Api_GetPoll, Api_GetPollMembers, Api_Vote } from "../api";
 
 
@@ -161,12 +161,12 @@ async function ButtonVote_click(e : Event){
         //generate zkProof
         try{
             //get vote
-            const vote = await GenerateVote(privateKey, leafIndex, invitation, pollId, voteValue, voteMerkleProof);
+            const vote : VoteSubmission = await GenerateVote(privateKey, leafIndex, invitation, pollId, voteValue, voteMerkleProof);
             VoteSuccess("Vote's proof was generated successfully.");
 
             //submit proof
             try{
-                const response = await (await Api_Vote(pollId, vote, voteValue)).json();
+                const response = await (await Api_Vote(vote)).json();
                 if(response.error){
                     //failure
                     VoteFailure("Server: " + response.error);

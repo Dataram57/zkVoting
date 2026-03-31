@@ -173,6 +173,14 @@ export function GetPollHash(pollId : string) : string{
     return poseidon2([SALT_POLL, BigInt(pollHex) % p]).toString();
 }
 
+export interface VoteSubmission {
+    pollId: string;
+    pollMerkleRoot: string;
+    nullifier: string;
+    voteValue: string;
+    proof: any;
+}
+
 export async function GenerateVote(
     privateKey: bigint,
     publicKey_index: number,
@@ -180,7 +188,7 @@ export async function GenerateVote(
     pollId: string,
     vote: string,
     merklePath: bigint[]
-) {
+) : Promise<VoteSubmission> {
     const proofInput = {
         // snarkjs expects strings, not bigint
         privateKey: privateKey.toString(),
@@ -197,28 +205,39 @@ export async function GenerateVote(
         "/circuits/vote.zkey"
     );
 
-    return { proof, publicSignals };
+    return {
+        pollId: pollId,
+        pollMerkleRoot: publicSignals[1] as string, 
+        nullifier: publicSignals[2] as string,
+        voteValue: vote,
+        proof: proof
+    };
 }
 
 export async function VerifyVote(
+    vote : VoteSubmission,
     pollId : string,
-    pollMerkleRoot: string,
-    nullifier : string,
-    vote : string,
-    proof : any
+    pollMerkleRoot : string
 ) : Promise<boolean> {
+
+    //check if fields match
+    if(vote.pollId != pollId)
+        return false;
+    if(vote.pollMerkleRoot != pollMerkleRoot)
+        return false;
 
     //reconstruct public signals
     const publicSignals = [
-        GetPollHash(pollId),
-        pollMerkleRoot,
-        nullifier,
-        (await voteValueToVoteHash(vote)).toString()
+        GetPollHash(vote.pollId),
+        vote.pollMerkleRoot,
+        vote.nullifier,
+        (await voteValueToVoteHash(vote.voteValue)).toString()
     ];
     
+    //check zk proof
     return await snarkjs.groth16.verify(
         vote_verifier,
         publicSignals,
-        proof
+        vote.proof
     ) as boolean;
 }

@@ -1,14 +1,15 @@
-import { sql } from "../_lib/db.js";
-import { applyCors } from "../_lib/cors.js";
+import { sql } from "../_lib/db";
+import { applyCors } from "../_lib/cors";
 
-export default async function handler(req, res) {
+export default async function handler(req : any, res : any) {
     //================================
     // CORS headers
     if (applyCors(req, res)) return;
     //================================
-    const { pollId } = req.query;
 
     try {
+        const pollId : string = req.query.pollId;
+
         const members = await sql`
             SELECT leaf, position
             FROM poll_members

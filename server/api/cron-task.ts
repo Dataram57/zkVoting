@@ -1,6 +1,6 @@
-import { sql } from "./_lib/db.js";
+import { sql } from "./_lib/db";
 
-export default async function handler(request, response) {
+export default async function handler(request : any, response : any) {
     const authHeader = request.headers.authorization;
     if (
         !process.env.CRON_SECRET ||

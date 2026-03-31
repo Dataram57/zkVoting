@@ -6,6 +6,7 @@
 - User-friendly options defining and picking.
 - Information on server's limits.
 - Users can check if someone belongs to the poll.
+- No empty public keys for making polls.
 
 `server`:
 - Input checks
@@ -21,20 +22,5 @@
 
 Cryptography:
 - Explanation on techniques used.
-- Use additional salt for hashing to create/isolate sepearte domains.
-- Use additional salt for obtaining the hash of the poll.
-    - New constants:
-        - `SALT_IDENTITY` - public, fixed, hardcoded constant
-        - `SALT_POLL` - public, fixed, hardcoded constant
-        - `SALT_LEAF` - public, fixed, hardcoded constant
-        - `SALT_NULLIFIER_BASE` - public, fixed, hardcoded constant
-        - `SALT_NULLIFIER` - public, fixed, hardcoded constant
-    - Computation:
-        - `publicKey = Poseidon(SALT_IDENTITY, privateKey)`
-        - `pollId = SHA256(poll)` used for identifying and verifying polls on centralised server.
-        - `pollHash = Poseidon(SALT_POLL, pollId % p)`)
-        - `leaf = Poseidon(SALT_LEAF, publicKey, invitation)`
-        - `merkleRoot = Poseidon(left, right) * bit + (1 - bit) * Poseidon(right, left)`
-        - `identityNullifier = Poseidon(SALT_NULLIFIER_BASE, privateKey)`
-        - `nullifier = Poseidon(SALT_NULLIFIER, identityNullifier, pollHash)`
 - Sybil attack clarification.
+- `voteValue` to `vote` better mapping.
