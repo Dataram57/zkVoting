@@ -1,4 +1,4 @@
-import { sql } from "./lib/db.js";
+import { sql } from "./_lib/db.js";
 
 export default async function handler(request : any, response : any) {
     const authHeader = request.headers.authorization;
