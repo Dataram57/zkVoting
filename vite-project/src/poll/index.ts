@@ -1,6 +1,7 @@
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
 import { jsonToID, VerifyVote, type VoteSubmission } from "../crypto";
 import { Api_GetPoll, Api_GetPollMembers, Api_GetPollVotes } from "../api";
+import { PageThread } from "../PageThread";
 
 function ClearCheckLogs(){
     (document.getElementById("check_logs") as HTMLElement).innerText = "";
@@ -23,18 +24,37 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
     tag.disabled = true;
     const pollId = tag.value;
 
+    //===========================================
+    //capture thread
+    const thread : PageThread = new PageThread();
+    //===========================================
+
     //clear logs
     ClearCheckLogs();
 
     try{
         //fetch poll meta
         const pollMeta = await (await Api_GetPoll(pollId)).json();
+
+        //============================
+        //check exit
+        if(thread.CheckExit()) return;
+        //============================
+
+        //update view
         (document.getElementById("poll-description") as HTMLElement).innerHTML = markdownToSafeHTML(pollMeta.description);
         CheckSuccess("Poll's profile loaded.");
         (document.getElementById("poll-description") as HTMLButtonElement).hidden = false;
 
         //fetch poll members
         const pollMembers = await (await Api_GetPollMembers(pollId)).json() as { leaf: string; position: number }[];
+        
+        //============================
+        //check exit
+        if(thread.CheckExit()) return;
+        //============================
+
+        //update ivew
         CheckSuccess("Poll's members loaded.");
 
         //verify poll's authenticity
@@ -44,6 +64,12 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
             description: pollMeta.description
         };
         const pollHash = await jsonToID(pollData);
+
+        //============================
+        //check exit
+        if(thread.CheckExit()) return;
+        //============================
+
         if(pollHash != pollId)
             CheckFailure("Server has altered poll's data.");
         else{
@@ -51,6 +77,11 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
             
             //fetch votes
             const pollVotesMeta = await (await Api_GetPollVotes(pollId)).json();
+
+            //============================
+            //check exit
+            if(thread.CheckExit()) return;
+            //============================
             
             // verify votes and build frequency map
             const pollVotes = pollVotesMeta.votes;
@@ -71,6 +102,11 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
 
 
                 const isValid = await VerifyVote(vote, pollId, pollData.root);
+
+                //============================
+                //check exit
+                if(thread.CheckExit()) return;
+                //============================
 
                 //console.log(isValid);
 

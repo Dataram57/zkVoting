@@ -2,6 +2,7 @@
 import { GenerateMemeberLeaf, ComputeMerkleRoot } from "../crypto";
 import { p, merkleTreeHeight } from "../config";
 import { Api_CreatePoll } from "../api";
+import { PageThread } from "../PageThread";
 
 const maxParticipants : bigint = 1n << merkleTreeHeight;
 
@@ -177,14 +178,28 @@ async function HostPoll(){
             members.push((0n).toString());
     });
 
+    //===========================================
+    //capture thread
+    const thread : PageThread = new PageThread();
+    //===========================================
+
     //form query
     try{
         const response = await Api_CreatePoll(
             (document.getElementById("poll-description") as HTMLInputElement).value,
             members
         );
+        //============================
+        //check exit
+        if(thread.CheckExit()) return;
+        //============================
+        
         
         const data = await response.json();
+        //============================
+        //check exit
+        if(thread.CheckExit()) return;
+        //============================
         if(!data.id)
             throw 0;
 

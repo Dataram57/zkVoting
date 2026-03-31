@@ -1,4 +1,5 @@
 import { getNextURLPrivateParameter } from "./lib";
+import { SignalNewThread } from "./PageThread";
 
 //================================================================
 //#region Window and page switching
@@ -63,6 +64,9 @@ const LoadPage = async (
 
     //let the content section be loaded/intiatied
     if (!tagPageContent) return;
+
+    //Signal new thread
+    SignalNewThread();
 
     // History
     if (!options?.skipHistory) {

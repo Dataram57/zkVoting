@@ -2,6 +2,7 @@ import { merkleTreeHeight, p } from "../config"
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
 import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote, type VoteSubmission } from "../crypto";
 import { Api_GetPoll, Api_GetPollMembers, Api_Vote } from "../api";
+import { PageThread } from "../PageThread";
 
 
 let errorCount = 0;
@@ -34,18 +35,31 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
     //clear logs
     ClearCheckLogs();
 
+    //===========================================
+    //capture thread
+    const thread : PageThread = new PageThread();
+    //===========================================
+
     //clear array
     pollMembers = null;
 
     try{
         //fetch poll meta
         const pollMeta = await (await Api_GetPoll(pollId)).json();
+        //============================
+        //check exit
+        if(thread.CheckExit()) return;
+        //============================
         (document.getElementById("poll-description") as HTMLElement).innerHTML = markdownToSafeHTML(pollMeta.description);
         CheckSuccess("Poll's profile loaded.");
         (document.getElementById("poll-description") as HTMLButtonElement).hidden = false;
 
         //fetch poll members
         pollMembers = await (await Api_GetPollMembers(pollId)).json() as { leaf: string; position: number }[];
+        //============================
+        //check exit
+        if(thread.CheckExit()) return;
+        //============================
         CheckSuccess("Poll's members loaded.");
 
         //verify poll's authenticity
@@ -55,6 +69,10 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
             description: pollMeta.description
         };
         const pollHash = await jsonToID(pollData);
+        //============================
+        //check exit
+        if(thread.CheckExit()) return;
+        //============================
         if(pollHash != pollId)
             CheckFailure("Server has altered poll's data.");
         else{
@@ -131,6 +149,11 @@ async function ButtonVote_click(e : Event){
     if(errorCount > 0)
         return;
 
+    //===========================================
+    //capture thread
+    const thread : PageThread = new PageThread();
+    //===========================================
+
     //clear logs
     ClearVoteLogs();
 
@@ -162,11 +185,19 @@ async function ButtonVote_click(e : Event){
         try{
             //get vote
             const vote : VoteSubmission = await GenerateVote(privateKey, leafIndex, invitation, pollId, voteValue, voteMerkleProof);
+            //============================
+            //check exit
+            if(thread.CheckExit()) return;
+            //============================
             VoteSuccess("Vote's proof was generated successfully.");
 
             //submit proof
             try{
                 const response = await (await Api_Vote(vote)).json();
+                //============================
+                //check exit
+                if(thread.CheckExit()) return;
+                //============================
                 if(response.error){
                     //failure
                     VoteFailure("Server: " + response.error);
