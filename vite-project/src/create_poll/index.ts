@@ -141,6 +141,17 @@ async function HostPoll(){
         return;
     }
 
+    //check if empty field was found
+    let emptyFieldsErrorCount : number = 0;
+    document.getElementById("participants")?.querySelectorAll<HTMLInputElement>('input[type="text"]')?.forEach(input => {
+        if(input.value.length == 0)
+            emptyFieldsErrorCount++;
+    });
+    if(emptyFieldsErrorCount > 0){
+            alert((emptyFieldsErrorCount > 1) ? ("There are " + emptyFieldsErrorCount.toString() + " empty member public keys.") : "There is an empty member public key.");
+        return;
+    }
+
     //mark pushing
     isPushing = true;
     isBlocked = true;
@@ -160,22 +171,20 @@ async function HostPoll(){
         if (index === 0) return;
 
         const pk_text : string = row.querySelector<HTMLInputElement>('input[type="text"]')?.value as string;
-        if(pk_text.length){
-            const pk : bigint = (pk_text.length == 0) ? 0n : BigInt(pk_text);
+        
+        const pk : bigint = (pk_text.length == 0) ? 0n : BigInt(pk_text);
 
-            if(row.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked){
-                const code = randomBigInt(254);
-                members.push(GenerateMemeberLeaf(pk, code).toString());
-                codes.push({
-                    pk: pk,
-                    code: code
-                });
-            }
-            else    
-                members.push(GenerateMemeberLeaf(pk).toString());
+        if(row.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked){
+            const code = randomBigInt(254);
+            members.push(GenerateMemeberLeaf(pk, code).toString());
+            codes.push({
+                pk: pk,
+                code: code
+            });
         }
-        else
-            members.push((0n).toString());
+        else    
+            members.push(GenerateMemeberLeaf(pk).toString());
+
     });
 
     //===========================================

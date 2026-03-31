@@ -5,7 +5,6 @@
 - User-friendly options defining and picking.
 - Information on server's limits.
 - Users can check if someone belongs to the poll.
-- No empty public keys for making polls.
 
 `server`:
 - Input checks
