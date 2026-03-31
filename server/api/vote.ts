@@ -1,6 +1,6 @@
-import { sql } from "./lib/db";
-import { applyCors } from "./lib/cors";
-import { VerifyVote, VoteSubmission } from "./lib/crypto";
+import { sql } from "./lib/db.js";
+import { applyCors } from "./lib/cors.js";
+import { VerifyVote, VoteSubmission } from "./lib/crypto.js";
 
 export default async function handler(req, res) {
     //================================

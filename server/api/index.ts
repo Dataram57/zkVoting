@@ -1,4 +1,4 @@
-import { applyCors } from "./lib/cors";
+import { applyCors } from "./lib/cors.js";
 
 export default function handler(req : any, res : any) {
     //================================

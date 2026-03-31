@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { p, SALT_POLL } from "../config.crypto"
+import { p, SALT_POLL } from "../config.crypto.js"
 //poseidon
 import { poseidon2 } from "poseidon-lite";
 //zk

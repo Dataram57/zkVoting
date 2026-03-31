@@ -1,5 +1,5 @@
-import { sql } from "../lib/db";
-import { applyCors } from "../lib/cors";
+import { sql } from "../lib/db.js";
+import { applyCors } from "../lib/cors.js";
 
 export default async function handler(req : any, res : any) {
     //================================
