@@ -1,6 +1,6 @@
-import { sql } from "./_lib/db";
-import { jsonToID } from "./_lib/crypto";
-import { applyCors } from "./_lib/cors";
+import { sql } from "./lib/db";
+import { jsonToID } from "./lib/crypto";
+import { applyCors } from "./lib/cors";
 
 export default async function handler(req : any, res : any) {
     //================================
