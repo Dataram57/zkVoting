@@ -1,7 +1,7 @@
 //================================================================
 //#region Requirements
 
-import { GeneratePublicKey } from "../crypto";
+import { GeneratePrivateKey, GeneratePublicKey } from "../crypto";
 import { p } from "../config";
 
 //#endregion
@@ -29,23 +29,9 @@ async function ButtonCopyValue_click(event: PointerEvent){
 };
 
 
-function randomBigInt(bits: number): bigint {
-    const bytes = Math.ceil(bits / 8);
-    const buffer = new Uint8Array(bytes);
-    crypto.getRandomValues(buffer);
-
-    let result = 0n;
-    for (const byte of buffer) {
-        result = (result << 8n) | BigInt(byte);
-    }
-
-    return result % p;
-}
-
-
 function ButtonRandomPrivateKey_click() {
     const input = document.getElementById("private_key") as HTMLInputElement;
-    input.value = randomBigInt(254).toString();
+    input.value = GeneratePrivateKey().toString();
     InputPrivateKey_input();
 };
 

@@ -1,8 +1,9 @@
 
-import { GenerateMemeberLeaf, ComputeMerkleRoot } from "../crypto";
+import { randomBigInt, GenerateMemeberLeaf } from "../crypto";
 import { p, merkleTreeHeight } from "../config";
 import { Api_CreatePoll } from "../api";
 import { PageThread } from "../PageThread";
+import { poll_max_description_length } from "../config.server";
 
 const maxParticipants : bigint = 1n << merkleTreeHeight;
 
@@ -11,19 +12,6 @@ let isBlocked : boolean = false;
 let isPushing : boolean = false;
 let errorCount: number = 0;
 
-
-function randomBigInt(bits: number): bigint {
-    const bytes = Math.ceil(bits / 8);
-    const buffer = new Uint8Array(bytes);
-    crypto.getRandomValues(buffer);
-
-    let result = 0n;
-    for (const byte of buffer) {
-        result = (result << 8n) | BigInt(byte);
-    }
-
-    return result % p;
-}
 
 //pattern_participant
 function Participant_remove_click(e : Event){
@@ -59,6 +47,25 @@ function Participant_input(e : Event){
             isError = true;
         }
     }
+    
+    //check display
+    if(isError != wasError)
+        if(isError)
+        {
+            errorCount++;
+            input.classList.add("error");
+        }
+        else{
+            errorCount--;
+            input.classList.remove("error");
+        }
+}
+
+//description
+function Description_input(e : Event){
+    const input : HTMLInputElement = e.target as HTMLInputElement;
+    const wasError : boolean = input.classList.contains("error");
+    const isError : boolean = input.value.length > poll_max_description_length;
     
     //check display
     if(isError != wasError)
@@ -134,6 +141,17 @@ function DisplaySuccess(){
     tag.classList.add("show");
 }
 
+function SetGUIDisabled(dis: boolean) {
+    (document.getElementById("button-host_poll") as HTMLButtonElement).disabled = dis;
+    (document.getElementById("button-add_paricipant") as HTMLButtonElement).disabled = dis;
+    (document.getElementById("button-add_n_pariticipants") as HTMLButtonElement).disabled = dis;
+    (document.getElementById("n-participants") as HTMLInputElement).disabled = dis;
+    (document.getElementById("poll-description") as HTMLInputElement).disabled = dis;
+
+    document.querySelectorAll<HTMLInputElement>("#participants input")
+        .forEach(input => input.disabled = dis);
+}
+
 async function HostPoll(){
     //check errors
     if(errorCount != 0){
@@ -155,37 +173,46 @@ async function HostPoll(){
     //mark pushing
     isPushing = true;
     isBlocked = true;
-    (document.getElementById("button-host_poll") as HTMLButtonElement).disabled = true;
-    (document.getElementById("button-add_paricipant") as HTMLButtonElement).disabled = true;
-    (document.getElementById("button-add_n_pariticipants") as HTMLButtonElement).disabled = true;
-    (document.getElementById("n-participants") as HTMLButtonElement).disabled = true;
-    (document.getElementById("poll-description") as HTMLButtonElement).disabled = true;
-    document.getElementById("participants")?.querySelectorAll<HTMLInputElement>("input")?.forEach(input => {
-        input.disabled = true;
-    });
+    SetGUIDisabled(true);
 
     //construct data
     const members : string[] = [];  //bigints can't be serialised in json
     const codes: { pk: bigint; code: bigint }[] = [];
-    document.querySelectorAll<HTMLTableRowElement>("#participants tr").forEach((row, index) => {
-        if (index === 0) return;
+    const rows = document.querySelectorAll<HTMLTableRowElement>("#participants tr");
+    const seen = new Set<string>(); //used for checking duplicate members
+    for (let index = 1; index < rows.length; index++) {
+        const row = rows[index];
 
-        const pk_text : string = row.querySelector<HTMLInputElement>('input[type="text"]')?.value as string;
-        
-        const pk : bigint = (pk_text.length == 0) ? 0n : BigInt(pk_text);
+        const pk_text = row.querySelector<HTMLInputElement>('input[type="text"]')?.value ?? "";
+        const pk: bigint = pk_text.length === 0 ? 0n : BigInt(pk_text);
 
-        if(row.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked){
+        let leaf: string;
+
+        if (row.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked) {
             const code = randomBigInt(254);
-            members.push(GenerateMemeberLeaf(pk, code).toString());
-            codes.push({
-                pk: pk,
-                code: code
-            });
-        }
-        else    
-            members.push(GenerateMemeberLeaf(pk).toString());
+            leaf = GenerateMemeberLeaf(pk, code).toString();
 
-    });
+            codes.push({ pk, code });
+        } else {
+            leaf = GenerateMemeberLeaf(pk).toString();
+        }
+
+        if (seen.has(leaf)) {
+            //alert
+            alert("Duplicate participant detected!");
+            
+            //re-enable editing
+            isPushing = false;
+            isBlocked = false;
+            SetGUIDisabled(false);
+
+            //end
+            return;
+        }
+
+        seen.add(leaf);
+        members.push(leaf);
+    }
 
     //===========================================
     //capture thread
@@ -263,6 +290,9 @@ export function init() {
     document.getElementById("button-add_paricipant")?.addEventListener("click", AddNewParticipant);
     document.getElementById("button-add_n_pariticipants")?.addEventListener("click", AddN_NewPariticipants);
     AddN_NewPariticipants();
+
+    //description
+    document.getElementById("poll-description")?.addEventListener("input", Description_input);
 
     //host poll
     document.getElementById("button-host_poll")?.addEventListener("click", HostPoll);

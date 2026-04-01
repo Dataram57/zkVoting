@@ -1,4 +1,4 @@
-import { sql } from "../_lib/db.js";
+import { GetPollVotes, sql } from "../_lib/db.js";
 import { applyCors } from "../_lib/cors.js";
 
 export default async function handler(req : any, res : any) {
@@ -10,20 +10,11 @@ export default async function handler(req : any, res : any) {
     try {
         const pollId : string = req.query.pollId;
         
-        const poll = await sql`
-            SELECT id FROM polls WHERE id = ${pollId}
-        `;
-
-        if (poll.length === 0) {
-            return res.status(404).json({ error: "Poll not found" });
+        if(typeof pollId != "string"){
+            return res.status(400).json({ error: "`pollId` is not a string" });
         }
 
-        const votes = await sql`
-            SELECT vote_value, nullifier, proof, created_at
-            FROM votes
-            WHERE poll_id = ${pollId}
-            ORDER BY created_at ASC
-        `;
+        const votes = await GetPollVotes(pollId);
 
         res.json({ pollId, votes });
 

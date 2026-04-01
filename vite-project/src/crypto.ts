@@ -1,7 +1,7 @@
 
 import { poseidon1, poseidon2, poseidon3 } from "poseidon-lite";
 import * as snarkjs from "snarkjs";
-import { p } from "./config";
+import { p, privateKey_bitCount } from "./config";
 import vote_verifier from "./circuits/vote.json";
 
 async function GenerateSalt(data : string) : Promise<string>{
@@ -33,6 +33,19 @@ console.log("check SALT_NULLIFIER_BASE", SALT_NULLIFIER_BASE == "176553283399393
 console.log("check SALT_NULLIFIER", SALT_NULLIFIER == "158508368761311659699926858248834935040342510550644700966438814198616225925");
 
 
+export function randomBigInt(bits: number): bigint {
+    const bytes = Math.ceil(bits / 8);
+    const buffer = new Uint8Array(bytes);
+    crypto.getRandomValues(buffer);
+
+    let result = 0n;
+    for (const byte of buffer) {
+        result = (result << 8n) | BigInt(byte);
+    }
+
+    return result % p;
+}
+
 export async function jsonToID<T>(obj: T): Promise<string> {
     const data = JSON.stringify(obj);
     const bytes = new TextEncoder().encode(data);
@@ -50,6 +63,10 @@ export async function voteValueToVoteHash(data : string) : Promise<bigint> {
         .map(b => b.toString(16).padStart(2, "0"))
         .join("");
     return BigInt("0x" + hash) % p;
+}
+
+export function GeneratePrivateKey() : bigint {
+    return randomBigInt(privateKey_bitCount);
 }
 
 export function GeneratePublicKey(secret: bigint): bigint{

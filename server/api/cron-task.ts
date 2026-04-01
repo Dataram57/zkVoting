@@ -1,4 +1,4 @@
-import { sql } from "./_lib/db.js";
+import { DeleteOldPolls, sql } from "./_lib/db.js";
 
 export default async function handler(request : any, response : any) {
     const authHeader = request.headers.authorization;
@@ -9,11 +9,8 @@ export default async function handler(request : any, response : any) {
         return response.status(401).json({ success: false });
     }
 
-    // delete polls older than 3 days
-    await sql`
-        DELETE FROM polls
-        WHERE created_at < now() - interval '3 days';
-    `;
+    //tasks
+    DeleteOldPolls();
 
     response.status(200).json({ message: "Task executed" });
 }

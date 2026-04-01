@@ -3,6 +3,7 @@ import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
 import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote, type VoteSubmission } from "../crypto";
 import { Api_GetPoll, Api_GetPollMembers, Api_Vote } from "../api";
 import { PageThread } from "../PageThread";
+import { poll_max_vote_length } from "../config.server";
 
 
 let errorCount = 0;
@@ -229,7 +230,23 @@ async function ButtonVote_click(e : Event){
     (document.getElementById("input-vote") as HTMLInputElement).disabled = false;
 }
 
-
+function VoteValue_input(e : Event){
+    const input : HTMLInputElement = e.target as HTMLInputElement;
+    const wasError : boolean = input.classList.contains("error");
+    const isError : boolean = input.value.length > poll_max_vote_length;
+    
+    //check display
+    if(isError != wasError)
+        if(isError)
+        {
+            errorCount++;
+            input.classList.add("error");
+        }
+        else{
+            errorCount--;
+            input.classList.remove("error");
+        }
+}
 
 
 //#endregion
@@ -243,6 +260,7 @@ export function init() {
     document.getElementById("button-vote")?.addEventListener("click", ButtonVote_click);
     document.getElementById("input-invitation")?.addEventListener("input", ZKValue_input);
     document.getElementById("input-private_key")?.addEventListener("input", ZKValue_input);
+    document.getElementById("input-vote")?.addEventListener("input", VoteValue_input);
 
     //autofill inputs
     const p1 = getNextURLPrivateParameter("#" + getNextURLPrivateParameter().remainder);

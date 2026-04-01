@@ -1,6 +1,6 @@
-import { sql } from "./_lib/db.js";
-import { jsonToID } from "./_lib/crypto.js";
+import { InsertPoll, isPoll, Poll } from "./_lib/db.js";
 import { applyCors } from "./_lib/cors.js";
+import { poll_max_description_length, poll_max_members_count } from "./config.js";
 
 export default async function handler(req : any, res : any) {
     //================================
@@ -11,31 +11,30 @@ export default async function handler(req : any, res : any) {
     if (req.method !== "POST") {
         return res.status(405).end();
     }
-    console.log(req.body);
 
     try {
-        const pollData = req.body;
-        const pollHash = await jsonToID(pollData);
+        //get pollData
+        const pollData : Poll = req.body as Poll;
 
-        const memberQueries = pollData.members.map((leaf, i) =>
-            sql`
-            INSERT INTO poll_members (poll_id, leaf, position)
-            VALUES (${pollHash}, ${leaf}, ${i})
-            `
-        );
+        //check limits
+        if(pollData.description.toString().length > poll_max_description_length)
+            return res.status(400).json({ error: "`pollData.description` is too long." });
+        if(!Array.isArray(pollData.members))
+            return res.status(400).json({ error: "`pollData.members` is not an array." });
+        if(pollData.members.length > poll_max_members_count)
+            return res.status(400).json({ error: "`pollData.members` has too many entries." });
 
-        await sql.transaction([
-            sql`
-            INSERT INTO polls (id, description, merkle_root)
-            VALUES (${pollHash}, ${pollData.description}, ${pollData.root})
-            `,
-            ...memberQueries,
-        ]);
+        //verify data
+        if(!isPoll(pollData)){
+            return res.status(400).json({ error: "`pollData` is not a Poll." });
+        }
 
-        res.json({ id: pollHash });
+        const pollId = await InsertPoll(pollData);
+
+        res.json({ id: pollId });
 
     } catch (err) {
         console.log(req.body);
-        res.status(500).json({ error: "Failed to create poll" });
+        res.status(500).json({ error: "Failed to create poll." });
     }
 }

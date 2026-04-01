@@ -1,6 +1,7 @@
-import { sql } from "./_lib/db.js";
+import { InsertVote, sql, Vote } from "./_lib/db.js";
 import { applyCors } from "./_lib/cors.js";
-import { VerifyVote, VoteSubmission } from "./_lib/crypto.js";
+import { VerifyVote } from "./_lib/crypto.js";
+import { poll_max_vote_length } from "./config.js";
 
 export default async function handler(req, res) {
     //================================
@@ -12,7 +13,16 @@ export default async function handler(req, res) {
         return res.status(405).end();
     }
 
-    const vote : VoteSubmission = req.body;
+    const vote : Vote = req.body;
+
+    if(vote.pollId === undefined){
+        return res.status(400).json({ error: "`vote.pollId` is undefined." });
+    }
+
+    //check limits
+    if(vote.voteValue.toString().length > poll_max_vote_length){
+        return res.status(400).json({ error: "`vote.voteValue` is too long" });
+    }
 
     try {
         const poll = await sql`
@@ -34,15 +44,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Vote failed verification." });
         }
 
-        await sql`
-            INSERT INTO votes (poll_id, nullifier, vote_value, proof)
-            VALUES (
-            ${pollId},
-            ${vote.nullifier},
-            ${vote.voteValue},
-            ${JSON.stringify(vote.proof)}
-            )
-        `;
+        await InsertVote(pollId, vote);
 
         res.json({ message: "Vote recorded successfully" });
 

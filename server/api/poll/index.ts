@@ -1,4 +1,4 @@
-import { sql } from "../_lib/db.js";
+import { GetPollInformation, sql } from "../_lib/db.js";
 import { applyCors } from "../_lib/cors.js";
 
 export default async function handler(req : any, res : any) {
@@ -9,18 +9,18 @@ export default async function handler(req : any, res : any) {
 
     try {
         const pollId : string = req.query.pollId;
+        
+        if(typeof pollId != "string"){
+            return res.status(400).json({ error: "`pollId` is not a string" });
+        }
 
-        const result = await sql`
-            SELECT id, description, merkle_root, created_at
-            FROM polls
-            WHERE id = ${pollId}
-        `;
+        const poll = await GetPollInformation(pollId);
 
-        if (result.length === 0) {
+        if (!poll) {
             return res.status(404).json({ error: "Poll not found" });
         }
 
-        res.json(result[0]);
+        res.json(poll);
 
     } catch (err : any) {
         console.log(err);

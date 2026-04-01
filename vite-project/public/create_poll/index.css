@@ -30,7 +30,9 @@ main #participants td:first-child{
 
 main #participants td:first-child > input{
     width: 100%;
-}main #participants td:first-child > input.error{
+}
+
+main .error{
     background-color:crimson;
 }
 
