@@ -1,4 +1,4 @@
-import { DeleteOldPolls, sql } from "./_lib/db.js";
+import { DeleteOldPolls } from "./_lib/db.js";
 
 export default async function handler(request : any, response : any) {
     const authHeader = request.headers.authorization;
@@ -10,7 +10,7 @@ export default async function handler(request : any, response : any) {
     }
 
     //tasks
-    DeleteOldPolls();
+    await DeleteOldPolls();
 
     response.status(200).json({ message: "Task executed" });
 }
