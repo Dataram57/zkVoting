@@ -2,6 +2,36 @@
 
 Celem projektu było stworzenie aplikacji i systemu służących do tworzenia głosowań które oferowały by anonimowość i jak najmniejszy brak konieczności zaufania do dowolnej strony. Aplikacja jest interfejsem użytkownika dzięki któremu może on w wygodny sposób korzystać z systemu.
 
+# Działanie
+
+## Aktorzy
+
+- ***Uczestnicy*** - Użytkownicy którzy są właścicielami swoich kluczy publicznych oraz głosującymy w anonimowym głosowaniu.
+- ***Organizator*** - Użytkownik który tworzy głosowanie ze zbioru kluczy publicznych jakie otrzymał od uczestników.
+
+## Scenariusz
+
+1. ***Uczestnicy*** tworzą i zapamiętują swoje pary kluczy publicznych i prywatnych. 
+    
+    ![](./2.svg)
+2. ***Uczestnicy*** przekazują organizatorowi swoje klucze publiczne.
+    
+    ![](./3.svg)
+3. ***Organizator*** definiuje z danym opisem i z zbiorem kluczy publicznych jakie otrzymał od uczestników.
+4. ***Organizator*** tworzy głosowania i otrzymuje adres głosowania.
+    
+    ![](./4.svg)
+5. ***Organizator*** przekazuje adres głosowania uczestnikom.
+6. ***Uczestnicy*** zapoznają się z opisem głosowania wskazanym pod adresem wysłanym przez organizatora.
+    
+    ![](./5.svg)
+7. ***Uczestnicy*** oddają głosy.
+    
+    ![](./6.svg)
+8. Każdy użytkownik jest w stanie ustalić opis i wyniki głosowania wskazanego pod danym adresem.
+    
+    ![](./7.svg)
+
 # Elementy Projektu
 
 ## Schemat Poglądowy
@@ -74,35 +104,7 @@ Wykorzystywny system powinien umożliwiać:
 
 Każde głosowanie powinno być identyfikowalne krótkim skrótem. Skrót ten powinien wiązać opis i członków głosowania co gwarantowało by nie podrabialność głosowania.
 
-# Działanie
 
-## Aktorzy
-
-- ***Uczestnicy*** - Użytkownicy którzy są właścicielami swoich kluczy publicznych oraz głosującymy w anonimowym głosowaniu.
-- ***Organizator*** - Użytkownik który tworzy głosowanie ze zbioru kluczy publicznych jakie otrzymał od uczestników.
-
-## Scenariusz
-
-1. ***Uczestnicy*** tworzą i zapamiętują swoje pary kluczy publicznych i prywatnych. 
-    
-    ![](./2.svg)
-2. ***Uczestnicy*** przekazują organizatorowi swoje klucze publiczne.
-    
-    ![](./3.svg)
-3. ***Organizator*** definiuje z danym opisem i z zbiorem kluczy publicznych jakie otrzymał od uczestników.
-4. ***Organizator*** tworzy głosowania i otrzymuje adres głosowania.
-    
-    ![](./4.svg)
-5. ***Organizator*** przekazuje adres głosowania uczestnikom.
-6. ***Uczestnicy*** zapoznają się z opisem głosowania wskazanym pod adresem wysłanym przez organizatora.
-    
-    ![](./5.svg)
-7. ***Uczestnicy*** oddają głosy.
-    
-    ![](./6.svg)
-8. Każdy użytkownik jest w stanie ustalić opis i wyniki głosowania wskazanego pod danym adresem.
-    
-    ![](./7.svg)
 
 # Realizacja
 
