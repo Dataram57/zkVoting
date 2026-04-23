@@ -134,7 +134,3 @@ Wszystkie komponenty zostały dostosowane tak żeby były przyjazne dla prostych
 - **Baza danych**: *Pozostaje nie widoczna dla nie uprawnionych.*
 
 > ***Nie gwarantujemy że wszystkie części projektu będą hostowane. Hosting jest darmowy i nie ma żadnego prywatnego wsparcia do dalszej pracy ani utrzymania.***
-
-# Testy
-
-jprd nie chce mi sie

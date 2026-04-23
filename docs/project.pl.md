@@ -1,6 +1,10 @@
 # Projekt
 
-Celem projektu było stworzenie aplikacji i systemu służących do tworzenia głosowań które oferowały by anonimowość i jak najmniejszy brak konieczności zaufania do dowolnej strony. Aplikacja jest interfejsem użytkownika dzięki któremu może on w wygodny sposób korzystać z systemu.
+Celem projektu było stworzenie aplikacji i systemu służących do tworzenia głosowań które oferowały by anonimowość i jak najmniejszy brak konieczności zaufania do dowolnej strony. ***Aplikacja*** jest interfejsem użytkownika dzięki któremu może on w wygodny sposób korzystać z ***systemu***.
+
+## Schemat poglądowy całego projektu
+
+![](./1.svg)
 
 # Działanie
 
@@ -33,10 +37,6 @@ Celem projektu było stworzenie aplikacji i systemu służących do tworzenia g�
     ![](./7.svg)
 
 # Elementy Projektu
-
-## Schemat Poglądowy
-
-![](./1.svg)
 
 ## Aplikacja
 
@@ -103,10 +103,3 @@ Wykorzystywny system powinien umożliwiać:
 ## Kryptografia - Deterministyczny Identyfikator Głosowań
 
 Każde głosowanie powinno być identyfikowalne krótkim skrótem. Skrót ten powinien wiązać opis i członków głosowania co gwarantowało by nie podrabialność głosowania.
-
-## Interfejs użytkownika
-
-...
-
-## Interfejs użytkownika
-
