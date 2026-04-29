@@ -1,5 +1,5 @@
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
-import { VerifyPollFull, VerifyPollFullResult, VerifyVote, type VoteSubmission } from "../crypto";
+import { VerifyPollFull, VerifyPollFullResult, VerifyVote } from "../crypto";
 import { Api_GetPoll, Api_GetPollMembersAll, Api_GetPollVotesAll } from "../api";
 import { PageThread } from "../PageThread";
 

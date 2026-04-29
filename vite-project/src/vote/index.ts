@@ -1,6 +1,6 @@
 import { merkleTreeHeight, p } from "../config"
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
-import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote, type VoteSubmission, type PollMember, VerifyPollFull, VerifyPollFullResult } from "../crypto";
+import { GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote, type VoteSubmission, type PollMember, VerifyPollFull, VerifyPollFullResult } from "../crypto";
 import { Api_GetPoll, Api_GetPollMembersAll, Api_Vote } from "../api";
 import { PageThread } from "../PageThread";
 import { poll_max_vote_length } from "../config.server";
