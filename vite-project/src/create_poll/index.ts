@@ -1,5 +1,5 @@
 
-import { randomBigInt, GenerateMemeberLeaf } from "../crypto";
+import { GenerateMemeberLeaf, GenerateInvitation } from "../crypto";
 import { p, merkleTreeHeight } from "../config";
 import { Api_CreatePoll } from "../api";
 import { PageThread } from "../PageThread";
@@ -189,12 +189,12 @@ async function HostPoll(){
         let leaf: string;
 
         if (row.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked) {
-            const code = randomBigInt(254);
-            leaf = GenerateMemeberLeaf(pk, code).toString();
+            const code = GenerateInvitation();
+            leaf = GenerateMemeberLeaf(pk, code);
 
             codes.push({ pk, code });
         } else {
-            leaf = GenerateMemeberLeaf(pk).toString();
+            leaf = GenerateMemeberLeaf(pk);
         }
 
         if (seen.has(leaf)) {

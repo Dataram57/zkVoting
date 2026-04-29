@@ -1,8 +1,11 @@
 
 import { poseidon1, poseidon2, poseidon3 } from "poseidon-lite";
 import * as snarkjs from "snarkjs";
-import { p, privateKey_bitCount } from "./config";
+import { merkleTreeHeight, p } from "./config";
 import vote_verifier from "./circuits/vote.json";
+
+const privateKey_bitCount = p.toString(2).length;
+const invitationKey_bitCount = p.toString(2).length;
 
 async function GenerateSalt(data : string) : Promise<string>{
     const bytes = new TextEncoder().encode(data);
@@ -33,7 +36,7 @@ console.log("check SALT_NULLIFIER_BASE", SALT_NULLIFIER_BASE == "176553283399393
 console.log("check SALT_NULLIFIER", SALT_NULLIFIER == "158508368761311659699926858248834935040342510550644700966438814198616225925");
 
 
-export function randomBigInt(bits: number): bigint {
+function randomBigInt(bits: number): bigint {
     const bytes = Math.ceil(bits / 8);
     const buffer = new Uint8Array(bytes);
     crypto.getRandomValues(buffer);
@@ -56,6 +59,19 @@ export async function jsonToID<T>(obj: T): Promise<string> {
         .join("");
 }
 
+export async function GetPollId(description : string, members : string[], root? : string) : Promise<string>{
+    const pollData = {
+        root: root ?? ComputeMerkleRoot(members, merkleTreeHeight).toString(),
+        members: members,
+        description: description
+    };
+    return await jsonToID(pollData);
+}
+
+export function GetPollMerkleRoot(members : string[]) : string{
+    return ComputeMerkleRoot(members, merkleTreeHeight).toString();
+}
+
 export async function voteValueToVoteHash(data : string) : Promise<bigint> {
     const bytes = new TextEncoder().encode(data);
     const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
@@ -73,8 +89,12 @@ export function GeneratePublicKey(secret: bigint): bigint{
     return poseidon2([SALT_IDENTITY, secret]);
 }
 
-export function GenerateMemeberLeaf(public_key: bigint, invitation: bigint = 0n): bigint{
-    return poseidon3([SALT_LEAF, public_key, invitation]);
+export function GenerateInvitation() : bigint{
+    return randomBigInt(invitationKey_bitCount);
+}
+
+export function GenerateMemeberLeaf(public_key: bigint, invitation: bigint = 0n) : string{
+    return poseidon3([SALT_LEAF, public_key, invitation]).toString();
 }
 
 export function MerkleHash(leaf_left : bigint = 0n, leaf_right : bigint = 0n){
@@ -190,6 +210,39 @@ export function GetPollHash(pollId : string) : string{
     return poseidon2([SALT_POLL, BigInt(pollHex) % p]).toString();
 }
 
+export interface PollMeta {
+    id: string;
+    merkle_root: string;
+    description: string;
+}
+
+export interface PollMember {
+    leaf: string;
+    position: number
+}
+
+export enum VerifyPollFullResult {
+    correct,
+    different_merkle_root,
+    different_id
+}
+
+export async function VerifyPollFull(pollId : string, pollMeta : PollMeta, pollMembers : PollMember[]) : Promise<VerifyPollFullResult> {
+    //check poll's root
+    const pollMerkleRoot = GetPollMerkleRoot(pollMembers.map(member => member.leaf));
+    if(pollMeta.merkle_root != pollMerkleRoot)
+        return VerifyPollFullResult.different_merkle_root;
+
+    //check poll's authenticity
+    const pollHash = await GetPollId(pollMeta.description, pollMembers.map(member => member.leaf), pollMeta.merkle_root);
+    if(pollHash != pollId)
+        return VerifyPollFullResult.different_id;
+
+    //all correct
+    return VerifyPollFullResult.correct;
+}
+
+
 export interface VoteSubmission {
     pollId: string;
     pollMerkleRoot: string;
@@ -231,24 +284,23 @@ export async function GenerateVote(
     };
 }
 
-export async function VerifyVote(
-    vote : VoteSubmission,
-    pollId : string,
-    pollMerkleRoot : string
-) : Promise<boolean> {
+export interface VoteUnknown{
+    vote_value : string;
+    nullifier : string;
+    proof : any;
+}
 
-    //check if fields match
-    if(vote.pollId != pollId)
-        return false;
-    if(vote.pollMerkleRoot != pollMerkleRoot)
-        return false;
+export async function VerifyVote(
+    vote : VoteUnknown,
+    pollMeta : PollMeta
+) : Promise<boolean> {
 
     //reconstruct public signals
     const publicSignals = [
-        GetPollHash(vote.pollId),
-        vote.pollMerkleRoot,
+        GetPollHash(pollMeta.id),
+        pollMeta.merkle_root,
         vote.nullifier,
-        (await voteValueToVoteHash(vote.voteValue)).toString()
+        (await voteValueToVoteHash(vote.vote_value)).toString()
     ];
     
     //check zk proof

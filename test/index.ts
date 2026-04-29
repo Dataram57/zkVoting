@@ -1,4 +1,8 @@
 import request from "supertest";
+import { GeneratePrivateKey, GeneratePublicKey, GenerateMemeberLeaf, GenerateInvitation, GetPollId, VerifyPollFull } from "../vite-project/src/crypto";
+import { Api_CreatePoll, Api_GetPoll, Api_GetPollMembersAll } from "../vite-project/src/api";
+
+import { faker } from "@faker-js/faker";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -15,13 +19,64 @@ const BASE_URL = "http://localhost:3000";
 
     //#endregion
 
-    //------------------------------------------------
-    //#region Generate Identities
+    let description : string = "";
+    let privateKeys : bigint[] = [];
+    let publicKeys : bigint[] = [];
+    let invitations : bigint[] = [];
+    let members : string[] = [];
+    let pollId : string = "";
 
-    //#endregion
+    async function RandomizeData(){
+
+        //------------------------------------------------
+        //#region Generate Random description
+
+        description = `Will ${faker.finance.currency().name} become the currency of the world before year 21${ Math.ceil(Math.random() * 100) }?`;
+
+        //#endregion
+
+        //------------------------------------------------
+        //#region Generate Identities
+
+        privateKeys = Array.from({ length: 256 }, () => GeneratePrivateKey());
+        publicKeys = privateKeys.map(pk => GeneratePublicKey(pk));
+
+        //#endregion
+
+        //------------------------------------------------
+        //#region Generate Members
+
+        invitations = Array.from({ length: 256 }, () => GenerateInvitation());
+        members = publicKeys.map((pk, i) => {
+            return GenerateMemeberLeaf(pk, invitations[i]);
+        });
+
+        //#endregion
+
+        //------------------------------------------------
+        //#region Generate Poll ID
+
+        pollId = await GetPollId(description, members);
+
+        //#endregion
+    };
+
+    async function VerifyPollData(){
+        
+        //get poll basic info
+        const pollMeta = await Api_GetPoll(pollId);
+
+        const pollMembers = await Api_GetPollMembersAll(pollId);
+
+        const verificationResult = await VerifyPollFull(pollId, pollMeta, pollMembers);
+
+    };
+
 
     //################################################
     //#region TEST: Poll Creation - Voter's count limit
+    
+
 
     //#endregion
 
@@ -37,6 +92,21 @@ const BASE_URL = "http://localhost:3000";
 
     //################################################
     //#region TEST: Poll Creation
+
+    RandomizeData();
+    const result = await Api_CreatePoll(description, members);
+    try{
+        console.log(await result.json());
+    }
+    catch(e : any){
+        return e;
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - -
+    //verify data
+
+
+
 
     //#endregion
 
@@ -69,6 +139,7 @@ const BASE_URL = "http://localhost:3000";
     //All is done
 
     // GET /api/users
+    /*
     const res2 = await request(BASE_URL).get("/api/users");
     console.log("GET /api/users ->", res2.status, res2.body);
 
@@ -78,5 +149,6 @@ const BASE_URL = "http://localhost:3000";
         .send({ username: "test", password: "test" });
 
     console.log("POST /api/login ->", res3.status, res3.body);
+    */
 
 })();

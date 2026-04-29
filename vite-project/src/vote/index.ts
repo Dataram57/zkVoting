@@ -1,14 +1,14 @@
 import { merkleTreeHeight, p } from "../config"
 import { getNextURLPrivateParameter, markdownToSafeHTML } from "../lib";
-import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote, type VoteSubmission } from "../crypto";
-import { Api_GetPoll, Api_GetPollMembers, Api_Vote } from "../api";
+import { jsonToID, GenerateMemeberLeaf, GeneratePublicKey, ComputeMerkleProof, RecomputeMerkleRootFromProof, ComputeMerkleRoot, GenerateVote, type VoteSubmission, type PollMember, VerifyPollFull, VerifyPollFullResult } from "../crypto";
+import { Api_GetPoll, Api_GetPollMembersAll, Api_Vote } from "../api";
 import { PageThread } from "../PageThread";
 import { poll_max_vote_length } from "../config.server";
 
 
 let errorCount = 0;
 
-let pollMembers : { leaf: string; position: number }[] | null = null;
+let pollMembers : PollMember[] | null = null;
 
 //================================================================
 //#region Verify Poll
@@ -46,48 +46,59 @@ async function ButtonVerifyPoll_click(e : Event | null = null){
 
     try{
         //fetch poll meta
-        const pollMeta = await (await Api_GetPoll(pollId)).json();
+        const pollMeta = await Api_GetPoll(pollId);
+
         //============================
         //check exit
         if(thread.CheckExit()) return;
         //============================
+
+        //update view
         (document.getElementById("poll-description") as HTMLElement).innerHTML = markdownToSafeHTML(pollMeta.description);
         CheckSuccess("Poll's profile loaded.");
         (document.getElementById("poll-description") as HTMLButtonElement).hidden = false;
 
         //fetch poll members
-        pollMembers = await (await Api_GetPollMembers(pollId)).json() as { leaf: string; position: number }[];
+        pollMembers = await Api_GetPollMembersAll(pollId);
+
         //============================
         //check exit
         if(thread.CheckExit()) return;
         //============================
+
+        //update view
         CheckSuccess("Poll's members loaded.");
 
-        //verify poll's authenticity
-        const pollData = {
-            root: pollMeta.merkle_root,
-            members: pollMembers.map(member => member.leaf),
-            description: pollMeta.description
-        };
-        const pollHash = await jsonToID(pollData);
+        //verify poll
+        const verificationResult = await VerifyPollFull(pollId, pollMeta, pollMembers);
+        
         //============================
         //check exit
         if(thread.CheckExit()) return;
         //============================
-        if(pollHash != pollId)
-            CheckFailure("Server has altered poll's data.");
-        else{
-            CheckSuccess("Poll's data is legit.");
-            
-            //check if vote has been already casted
-            //...
 
-            //all necessary tests have been made
-            //switch to vote option
-            (document.getElementById("panel-vote") as HTMLButtonElement).hidden = false;
+        //check verification result
+        switch(verificationResult){
+            case VerifyPollFullResult.different_merkle_root:
+                CheckFailure("Server has provided members that doesn't belong to this poll.");
+                break;
+            case VerifyPollFullResult.different_id:
+                CheckFailure("Server has altered poll's data.");
+                break;
+            case VerifyPollFullResult.correct:
+                CheckSuccess("Poll's data is legit.");
+                
+                //check if vote has been already casted
+                //...
 
-            //return and don't re-eanble editing the poll
-            return;
+                //all necessary tests have been made
+                //switch to vote option
+                (document.getElementById("panel-vote") as HTMLButtonElement).hidden = false;
+
+                //return and don't re-eanble editing the poll
+                return;
+
+                break;
         }
     }
     catch(e : any){

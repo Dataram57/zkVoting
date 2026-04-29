@@ -1,8 +1,7 @@
 
 export const p : bigint = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
-export const privateKey_bitCount = 254;
 export const merkleTreeHeight : bigint = 8n;
 export const apiURL : string = 
-    (window.location.hostname == "localhost")
+    (typeof(window) != "undefined" && window.location.hostname == "localhost")
         ? "http://localhost:3000/api"
         : "https://reptillian-zkvoting-api.vercel.app/api";
