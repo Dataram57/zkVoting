@@ -1,10 +1,58 @@
-import request from "supertest";
-import { GeneratePrivateKey, GeneratePublicKey, GenerateMemeberLeaf, GenerateInvitation, GetPollId, VerifyPollFull } from "../vite-project/src/crypto";
+//tester: /vite-project
+import { GeneratePrivateKey, GeneratePublicKey, GenerateMemeberLeaf, GenerateInvitation, GetPollId, VerifyPollFull, VerifyPollFullResult } from "../vite-project/src/crypto";
 import { Api_CreatePoll, Api_GetPoll, Api_GetPollMembersAll } from "../vite-project/src/api";
+import { poll_max_description_length, poll_max_members_count } from "../vite-project/src/config";
 
+
+//other
+import request from "supertest";
 import { faker } from "@faker-js/faker";
 
 const BASE_URL = "http://localhost:3000";
+
+let testFailsCount : number = 0;
+let testCount : number = 0;
+function LogTest(title : string, result : any, expected : any){
+    testCount++;
+    console.log();
+    if(result === expected){
+        console.log(`Test ${testCount}. ✅ - `, title);
+    }
+    else{
+        testFailsCount++;
+        console.log(`Test ${testCount}. ❌ - `, title);
+        console.log("Got:", result);
+        console.log("Expected:", expected);
+    }
+    console.log();
+}
+
+function LogTestError(title: string, ...err: any[]) {
+    testCount++;
+    testFailsCount++;
+    console.log();
+    console.log(`Test ${testCount}. ❌ -`, title);
+    console.log("Error:", ...err);
+    console.log();
+}
+
+function randomLetters(length: number): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const charsLength = chars.length;
+
+    // Use cryptographically secure randomness
+    const randomValues = new Uint32Array(length);
+    crypto.getRandomValues(randomValues);
+
+    let result = '';
+
+    for (let i = 0; i < length; i++) {
+        result += chars[randomValues[i] as number % charsLength];
+    }
+
+    return result;
+}
+
 
 (async () => {
     //Tests
@@ -19,15 +67,15 @@ const BASE_URL = "http://localhost:3000";
 
     //#endregion
 
+    let participantsCount : number = 4;
     let description : string = "";
     let privateKeys : bigint[] = [];
     let publicKeys : bigint[] = [];
     let invitations : bigint[] = [];
     let members : string[] = [];
     let pollId : string = "";
-
+    
     async function RandomizeData(){
-
         //------------------------------------------------
         //#region Generate Random description
 
@@ -36,9 +84,17 @@ const BASE_URL = "http://localhost:3000";
         //#endregion
 
         //------------------------------------------------
-        //#region Generate Identities
+        //#region Generate Private Keys - Identities
 
-        privateKeys = Array.from({ length: 256 }, () => GeneratePrivateKey());
+        privateKeys = Array.from({ length: participantsCount }, () => GeneratePrivateKey());
+
+        //#endregion
+    };
+
+    async function CommitData(){
+        //------------------------------------------------
+        //#region Generate Public Keys
+
         publicKeys = privateKeys.map(pk => GeneratePublicKey(pk));
 
         //#endregion
@@ -46,7 +102,7 @@ const BASE_URL = "http://localhost:3000";
         //------------------------------------------------
         //#region Generate Members
 
-        invitations = Array.from({ length: 256 }, () => GenerateInvitation());
+        invitations = Array.from({ length: participantsCount }, () => GenerateInvitation());
         members = publicKeys.map((pk, i) => {
             return GenerateMemeberLeaf(pk, invitations[i]);
         });
@@ -70,43 +126,64 @@ const BASE_URL = "http://localhost:3000";
 
         const verificationResult = await VerifyPollFull(pollId, pollMeta, pollMembers);
 
+        return verificationResult;
     };
 
 
     //################################################
     //#region TEST: Poll Creation - Voter's count limit
     
+    try{
+        participantsCount = poll_max_members_count + 1;
+        await RandomizeData();
+        await CommitData();
+        const result = await Api_CreatePoll(description, members);
+        LogTest("Poll Creation - Voter's count limit", result.ok, false);
+    }
+    catch(e : any){
+        LogTestError("Poll Creation - Voter's count limit", e);
+    }
 
+    //repair settings
+    participantsCount = poll_max_members_count;
 
     //#endregion
 
     //################################################
     //#region TEST: Poll Creation - Description size limit.
 
+    try{
+        await RandomizeData();
+        description = randomLetters(poll_max_description_length + 1);
+        await CommitData();
+        const result = await Api_CreatePoll(description, members);
+        LogTest("Poll Creation - Description size limit.", result.ok, false);
+    }
+    catch(e : any){
+        LogTestError("Poll Creation - Description size limit.", e);
+    }
+
     //#endregion
 
     //################################################
     //#region TEST: Poll Creation - Fake Merkle root.
+
+    //Affects the library.
 
     //#endregion
 
     //################################################
     //#region TEST: Poll Creation
 
-    RandomizeData();
-    const result = await Api_CreatePoll(description, members);
     try{
-        console.log(await result.json());
+        await RandomizeData();
+        await CommitData();
+        await Api_CreatePoll(description, members);
+        LogTest("Poll Verification", await VerifyPollData(), VerifyPollFullResult.correct);
     }
     catch(e : any){
-        return e;
+        LogTestError("Poll Creation", e);
     }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - -
-    //verify data
-
-
-
 
     //#endregion
 
