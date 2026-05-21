@@ -1,7 +1,7 @@
 //tester: /vite-project
-import { GeneratePrivateKey, GeneratePublicKey, GenerateMemeberLeaf, GenerateInvitation, GetPollId, VerifyPollFull, VerifyPollFullResult, GenerateVote, ComputeMerkleProof, VerifyVote, GetPollMeta } from "../vite-project/src/crypto";
-import { Api_CreatePoll, Api_GetPoll, Api_GetPollMembersAll, Api_GetPollVotesAll, Api_Vote } from "../vite-project/src/api";
-import { apiURL, merkleTreeHeight, p, poll_max_description_length, poll_max_members_count } from "../vite-project/src/config";
+import { GeneratePrivateKey, GeneratePublicKey, GenerateMemeberLeaf, GenerateInvitation, GetPollId, VerifyPollFull, VerifyPollFullResult, GenerateVote, ComputeMerkleProof, VerifyVote, GetPollMeta } from "../../src/crypto";
+import { Api_CreatePoll, Api_GetPoll, Api_GetPollMembersAll, Api_GetPollVotesAll, Api_Vote } from "../../src/api";
+import { apiURL, merkleTreeHeight, p, poll_max_description_length, poll_max_members_count } from "../../src/config";
 
 //other
 import { faker } from "@faker-js/faker";
