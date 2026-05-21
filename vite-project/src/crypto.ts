@@ -210,6 +210,15 @@ export function GetPollHash(pollId : string) : string{
     return poseidon2([SALT_POLL, BigInt(pollHex) % p]).toString();
 }
 
+export async function GetPollMeta(description : string, members : string[]) : Promise<PollMeta>{
+    const root = GetPollMerkleRoot(members);
+    return {
+        id: await GetPollId(description, members, root),
+        merkle_root: root,
+        description: description
+    }
+}
+
 export interface PollMeta {
     id: string;
     merkle_root: string;
@@ -271,8 +280,8 @@ export async function GenerateVote(
 
     const { proof, publicSignals } = await snarkjs.groth16.fullProve(
         proofInput,
-        "/circuits/vote.wasm",
-        "/circuits/vote.zkey"
+        "./circuits/vote.wasm",
+        "./circuits/vote.zkey"
     );
 
     return {

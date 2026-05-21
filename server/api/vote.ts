@@ -8,7 +8,6 @@ export default async function handler(req, res) {
     // CORS headers
     if (applyCors(req, res)) return;
     //================================
-    
     if (req.method !== "POST") {
         return res.status(405).end();
     }
@@ -40,7 +39,8 @@ export default async function handler(req, res) {
         const pollMerkleRoot : string = poll[0].merkle_root;
 
         //verify vote
-        if (!VerifyVote(vote, pollId, pollMerkleRoot)) {
+        if (await VerifyVote(vote, pollId, pollMerkleRoot) === false) {
+            console.log("err");
             return res.status(400).json({ error: "Vote failed verification." });
         }
 
