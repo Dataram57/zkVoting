@@ -79,3 +79,20 @@ Directory `/circuits` also contains its own separate `flake.nix`.
 cd circuits
 ./compile_groth16.sh
 ```
+
+# Running tests
+
+## Front-End
+
+### Internal
+
+None
+
+### External
+
+- [Server](./vite-project/tests/server/readme.md)
+
+## API
+
+None
+
