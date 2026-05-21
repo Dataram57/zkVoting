@@ -40,7 +40,6 @@ export default async function handler(req, res) {
 
         //verify vote
         if (await VerifyVote(vote, pollId, pollMerkleRoot) === false) {
-            console.log("err");
             return res.status(400).json({ error: "Vote failed verification." });
         }
 
