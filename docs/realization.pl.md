@@ -34,6 +34,10 @@ W projekcie korzystamy z symoblicznych powiązań z których korzystają ***Apli
 
 Warto zaznaczyć że `/circuits/public_deploy` znajdują się już skompilowane zkSNARK'i na potrzeby produkcyjne.
 
+## Kryptografia - Sole
+
+W naszej implementacji intensywnie korzystamy z funkcji hashujących, dlatego w celu separacji domen kolizyjnych zdefiniowaliśmy zestaw używanych soli w pliku `vite-project/src/crypto.ts`.
+
 ## Aplikacja
 
 Aplikacja realizujemy poprzez prostą aplikacje web'ową.
