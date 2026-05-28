@@ -11,22 +11,22 @@ Celem projektu było stworzenie aplikacji i systemu służących do tworzenia g�
 ## Aktorzy
 
 - ***Uczestnicy*** - Użytkownicy którzy są właścicielami swoich kluczy publicznych oraz głosującymy w anonimowym głosowaniu.
-- ***Organizator*** - Użytkownik który tworzy głosowanie ze zbioru kluczy publicznych jakie otrzymał od uczestników.
+- ***Inicjator*** - Użytkownik który tworzy głosowanie ze zbioru kluczy publicznych jakie otrzymał od uczestników.
 
 ## Scenariusz
 
 1. ***Uczestnicy*** tworzą i zapamiętują swoje pary kluczy publicznych i prywatnych. 
     
     ![](./2.svg)
-2. ***Uczestnicy*** przekazują organizatorowi swoje klucze publiczne.
+2. ***Uczestnicy*** przekazują ***inicjatorowi*** swoje klucze publiczne.
     
     ![](./3.svg)
-3. ***Organizator*** definiuje z danym opisem i z zbiorem kluczy publicznych jakie otrzymał od uczestników.
-4. ***Organizator*** tworzy głosowania i otrzymuje adres głosowania.
+3. ***Inicjator*** definiuje z danym opisem i z zbiorem kluczy publicznych jakie otrzymał od uczestników.
+4. ***Inicjator*** tworzy głosowania i otrzymuje adres głosowania.
     
     ![](./4.svg)
-5. ***Organizator*** przekazuje adres głosowania uczestnikom.
-6. ***Uczestnicy*** zapoznają się z opisem głosowania wskazanym pod adresem wysłanym przez organizatora.
+5. ***Inicjator*** przekazuje adres głosowania uczestnikom.
+6. ***Uczestnicy*** zapoznają się z opisem głosowania wskazanym pod adresem wysłanym przez ***inicjatora***.
     
     ![](./5.svg)
 7. ***Uczestnicy*** oddają głosy.
