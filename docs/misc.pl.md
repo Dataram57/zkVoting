@@ -22,7 +22,7 @@ npm run-script test
 
 ### Kolizja Nullifikator'ów.
 
-Każdy nullifikator przyjmuje wartości w prziedziale $ \langle 0, p - 1 \rangle$, gdzie $p$ jest równe:
+Każdy nullifikator przyjmuje wartości w przedziale $\langle 0, p - 1 \rangle$, gdzie $p$ jest równe:
 ```circom
 p = 21888242871839275222246405745257275088548364400416034343698204186575808495617
 ```

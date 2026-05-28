@@ -1,12 +1,6 @@
 nix-shell -p pandoc tectonic librsvg
 
 pandoc \
-  cover.pl.md project.pl.md realization.pl.md \
-  --metadata-file=metadata.pl.yaml \
-  --pdf-engine=tectonic \
-  -o book.pdf
-
-pandoc \
   cover.pl.md project.pl.md realization.pl.md misc.pl.md \
   --metadata-file=metadata.pl.yaml \
   --pdf-engine=tectonic \
