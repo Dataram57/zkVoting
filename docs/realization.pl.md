@@ -80,34 +80,34 @@ cd server
 npm install
 ```
 
-Następnie należy skonfigurować plik `/server/.env` tak żeby zawierała potrzebne informacje do połączenia się z bazą danych i dla innych aspektów technicznych:
+Następnie należy skonfigurować plik `/server/.env` tak żeby zawierała potrzebne informacje do połączenia się z bazą danych i dla innych aspektów technicznych (na bazie `/server/.env.base`):
 
 ```env
 # Recommended for most uses
-DATABASE_URL=
+DATABASE_URL=postgresql://neondb_user:BlaBlaBla@BlaBlaBla.aws.neon.tech/neondb_db?channel_binding=require&sslmode=require
 
 # For uses requiring a connection without pgbouncer
-DATABASE_URL_UNPOOLED=
+DATABASE_URL_UNPOOLED=postgresql://neondb_user:BlaBlaBla@BlaBlaBla.aws.neon.tech/neondb_db?sslmode=require
 
 # Parameters for constructing your own connection string
-PGHOST=
-PGHOST_UNPOOLED=
-PGUSER=
-PGDATABASE=
-PGPASSWORD=
+PGHOST=WhaWhaWha.aws.neon.tech
+PGHOST_UNPOOLED=WhaWhaWha.aws.neon.tech
+PGUSER=neondb_user
+PGDATABASE=neondb_db
+PGPASSWORD=WhakaPaka
 
 # Parameters for Vercel Postgres Templates
-POSTGRES_URL=
-POSTGRES_URL_NON_POOLING=
-POSTGRES_USER=
-POSTGRES_HOST=
-POSTGRES_PASSWORD=
-POSTGRES_DATABASE=
-POSTGRES_URL_NO_SSL=
-POSTGRES_PRISMA_URL=
+POSTGRES_URL=postgresql://neondb_user:BlaBlaBla@BlaBlaBla.aws.neon.tech/neondb_db?channel_binding=require&sslmode=require
+POSTGRES_URL_NON_POOLING=postgresql://neondb_user:BlaBlaBla@BlaBlaBla.aws.neon.tech/neondb_db?channel_binding=require&sslmode=require
+POSTGRES_USER=neondb_user
+POSTGRES_HOST=WhaWhaWha.aws.neon.tech
+POSTGRES_PASSWORD=WhakaPaka
+POSTGRES_DATABASE=neondb_db
+POSTGRES_URL_NO_SSL=postgresql://neondb_user:BlaBlaBla@BlaBlaBla.aws.neon.tech/neondb_db
+POSTGRES_PRISMA_URL=postgresql://neondb_user:BlaBlaBla@BlaBlaBla.aws.neon.tech/neondb_db?channel_binding=require&connect_timeout=15&sslmode=require
 
 # Cron job secret key
-CRON_SECRET=
+CRON_SECRET=SecretJob
 ```
 
 W naszej realizacji Serwer API dodatkowo usuwa głosowania starsze niż 3 dni.
@@ -123,8 +123,9 @@ npx vercel dev --yes
 npx tsx test_server.js
 ```
 
-Aplikacje będzie dostępna lokalnie pod adresem `http://localhost:3000`.
+Rekomendujemy użycia pierwszej komendy ze względu na lepsze odwzorowanie serwisu Vercel - Serverless.
 
+Aplikacje będzie dostępna lokalnie pod adresem `http://localhost:3000`.
 
 ## Hosting Aplikacji
 
