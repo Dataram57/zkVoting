@@ -268,22 +268,30 @@ export async function GenerateVote(
     vote: string,
     merklePath: bigint[]
 ) : Promise<VoteSubmission> {
+    //convert publicKey_index to bit form
+    const publicKey_index_bits : string[] = new Array<string>(Number(merkleTreeHeight)); 
+    for(let i = 0; i < merkleTreeHeight; i++)
+        publicKey_index_bits[i] = (publicKey_index & (1 << i)) ? '1' : '0';
+
+    //define input
     const proofInput = {
         // snarkjs expects strings, not bigint
         privateKey: privateKey.toString(),
-        publicKey_index: publicKey_index.toString(),
+        publicKey_index_bits: publicKey_index_bits,
         invitation: invitation.toString(),
         pollHash: GetPollHash(pollId),
         vote: (await voteValueToVoteHash(vote)).toString(),
         merkle_leafs: merklePath.map(x => x.toString())
     };
 
+    //construct proof
     const { proof, publicSignals } = await snarkjs.groth16.fullProve(
         proofInput,
         "./circuits/vote.wasm",
         "./circuits/vote.zkey"
     );
 
+    //return optimised proof
     return {
         pollId: pollId,
         pollMerkleRoot: publicSignals[1] as string, 

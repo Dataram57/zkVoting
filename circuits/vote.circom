@@ -1,6 +1,5 @@
 pragma circom 2.0.0;
 
-include "circomlib/circuits/bitify.circom";
 include "circomlib/circuits/poseidon.circom";
 
 template Vote(merkle_levelCount) {
@@ -13,7 +12,7 @@ template Vote(merkle_levelCount) {
 
     //member
     signal input privateKey;
-    signal input publicKey_index;
+    signal input publicKey_index_bits[merkle_levelCount];
     signal input invitation;
     
     //poll
@@ -24,6 +23,12 @@ template Vote(merkle_levelCount) {
 
     //Merkle Proof
     signal input merkle_leafs[merkle_levelCount];
+
+    //================================================================
+    //Force publicKey_bits to have only bits
+
+    for(var i = 0; i < merkle_levelCount; i++)
+        publicKey_index_bits[i] === publicKey_index_bits[i] * publicKey_index_bits[i];
 
     //================================================================
     //Nullifier
@@ -53,48 +58,40 @@ template Vote(merkle_levelCount) {
     merkleEntry.inputs[2] <== invitation;
 
     //================================================================
-    //Merkle Tree Path
+    //Merkle Trace
 
-    //get element (end leaf) path
-    component bits = Num2Bits(merkle_levelCount);
-    bits.in <== publicKey_index;
+    component mt_root[merkle_levelCount];
+    signal mt_root_next[merkle_levelCount + 1];
+    signal mt_left_1[merkle_levelCount];
+    signal mt_left_2[merkle_levelCount];
+    signal mt_right_1[merkle_levelCount];
+    signal mt_right_2[merkle_levelCount];
 
-    //================================================================
-    //Merkle Proof
+    mt_root_next[0] <== merkleEntry.out;
 
-    //computation parts
-    component ph_left[merkle_levelCount];
-    component ph_right[merkle_levelCount];
-    signal ph_add_left[merkle_levelCount];
-    signal ph_add_right[merkle_levelCount];
-    signal ph_next[merkle_levelCount + 1];
-
-    //define first root:    
-    ph_next[0] <== merkleEntry.out;
-
-    //blind computation of the merkle tree root
-    for (var i = 0; i < merkle_levelCount; i++){
+    for(var i = 0; i < merkle_levelCount; i++){
         //left
-        ph_left[i] = Poseidon(2);
-        ph_left[i].inputs[0] <== merkle_leafs[i];
-        ph_left[i].inputs[1] <== ph_next[i];
-        
+        mt_left_1[i] <== (1 - publicKey_index_bits[i]) * mt_root_next[i];
+        mt_left_2[i] <== publicKey_index_bits[i] * merkle_leafs[i];
+
         //right
-        ph_right[i] = Poseidon(2);
-        ph_right[i].inputs[0] <== ph_next[i];
-        ph_right[i].inputs[1] <== merkle_leafs[i];
+        mt_right_1[i] <== publicKey_index_bits[i] * mt_root_next[i];
+        mt_right_2[i] <== (1 - publicKey_index_bits[i]) * merkle_leafs[i];
+
+        //Poseidon hash
+        mt_root[i] = Poseidon(2);
+        mt_root[i].inputs[0] <== mt_left_1[i] + mt_left_2[i];
+        mt_root[i].inputs[1] <== mt_right_1[i] + mt_right_2[i];
         
         //next
-        ph_add_left[i] <== ph_left[i].out * bits.out[i];
-        ph_add_right[i] <== ph_right[i].out * (1 - bits.out[i]);
-        ph_next[i + 1] <== ph_add_left[i] + ph_add_right[i];
+        mt_root_next[i + 1] <== mt_root[i].out;
     }
 
     //================================================================
     //Public signals
 
     signal output out_pollHash <== pollHash;
-    signal output out_merkleRoot <== ph_next[merkle_levelCount];
+    signal output out_merkleRoot <== mt_root_next[merkle_levelCount];
     signal output out_nullifier <== nullifer.out;
     signal output out_vote <== vote;
 }
